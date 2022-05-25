@@ -1,8 +1,15 @@
-import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Scene, Vector3, OrthographicCamera } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+export type SetCurrentCamera = (camera: PerspectiveCamera) => void;
+
 export type OnAnimationFrame = (options: {timeStamp: number}) => void;
-export type OnInit = (options: {scene: Scene, camera: PerspectiveCamera, renderer: WebGLRenderer}) => OnAnimationFrame | void;
+export type OnInit = (options: {
+  scene: Scene,
+  camera: PerspectiveCamera,
+  renderer: WebGLRenderer,
+  setCurrentCamera: SetCurrentCamera
+}) => OnAnimationFrame | void;
 
 export interface Options {
   onInit?: OnInit;
@@ -25,10 +32,18 @@ export const setup = ({
     const camera = new PerspectiveCamera();
     camera.lookAt(new Vector3(0,0,0));
     
+    let currentCamera: PerspectiveCamera = camera;
+    const setCurrentCamera: SetCurrentCamera = (camera) => {
+      currentCamera = camera;
+      if(windowResizeHanlder) {
+        windowResizeHanlder();
+      }
+    }
+    
     // user defined init
     let onAnimationFrame: OnAnimationFrame | null = null;
     if (onInit) {
-      const returnedInit = onInit({scene, camera, renderer});
+      const returnedInit = onInit({scene, camera, renderer, setCurrentCamera});
       if(returnedInit) {
         onAnimationFrame = returnedInit;
       }
@@ -41,7 +56,7 @@ export const setup = ({
     // render loop
     const onAnimationFrameHandler = (timeStamp: number) => {
       onAnimationFrame && onAnimationFrame({timeStamp});
-      renderer.render(scene, camera);
+      renderer.render(scene, currentCamera);
       window.requestAnimationFrame(onAnimationFrameHandler);
     }
     window.requestAnimationFrame(onAnimationFrameHandler);
@@ -50,8 +65,8 @@ export const setup = ({
     const windowResizeHanlder = () => { 
       const { innerHeight, innerWidth } = window;
       renderer.setSize(innerWidth, innerHeight);
-      camera.aspect = innerWidth / innerHeight;
-      camera.updateProjectionMatrix();
+      currentCamera.aspect = innerWidth / innerHeight;
+      currentCamera.updateProjectionMatrix();
     };
     windowResizeHanlder();
     window.addEventListener('resize', windowResizeHanlder);

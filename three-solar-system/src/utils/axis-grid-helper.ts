@@ -23,7 +23,6 @@ export class AxisGridHelper {
     this.axes.visible = this._visible;
   }
   get visible() {
-    console.log({v: this._visible});
     return this._visible;
   }
   set visible(v) {
