@@ -1,5 +1,9 @@
-import { WebGLRenderer, PerspectiveCamera, Scene, Vector3, OrthographicCamera } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { WebGLRenderer, PerspectiveCamera, Scene, Vector3, Vector2 } from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 
 export type SetCurrentCamera = (camera: PerspectiveCamera) => void;
 
@@ -13,12 +17,10 @@ export type OnInit = (options: {
 
 export interface Options {
   onInit?: OnInit;
-  withOrbitControls?: boolean;
 }
 
 export const setup = ({
   onInit,
-  withOrbitControls,
 }: Options): void => {
     // scene
     const scene = new Scene();
@@ -33,11 +35,22 @@ export const setup = ({
     
     // camera
     const camera = new PerspectiveCamera();
-    camera.lookAt(new Vector3(0,0,0));
+    camera.position.set(0, 0, 10);
+    camera.lookAt(new Vector3(0, 0, 0));
 
     let currentCamera: PerspectiveCamera = camera;
+
+    // effects
+    const composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, currentCamera);
+    composer.addPass(renderPass);
+    const bloomPass = new UnrealBloomPass(new Vector2(10, 10), 1.5, 0.4, 0.85);
+    composer.addPass(bloomPass);
+    bloomPass.renderToScreen = false;
+  
     const setCurrentCamera: SetCurrentCamera = (camera) => {
       currentCamera = camera;
+      renderPass.camera = currentCamera;
       if(windowResizeHanlder) {
         windowResizeHanlder();
       }
@@ -51,15 +64,12 @@ export const setup = ({
         onAnimationFrame = returnedInit;
       }
     };
-    if(withOrbitControls) {
-      const controls = new OrbitControls( camera, renderer.domElement );
-      controls.update();
-    }
     
     // render loop
     const onAnimationFrameHandler = (timeStamp: number) => {
       onAnimationFrame && onAnimationFrame({timeStamp});
-      renderer.render(scene, currentCamera);
+      // renderer.render(scene, currentCamera);
+      composer.render();
       window.requestAnimationFrame(onAnimationFrameHandler);
     }
     window.requestAnimationFrame(onAnimationFrameHandler);
@@ -68,6 +78,7 @@ export const setup = ({
     const windowResizeHanlder = () => { 
       const { innerHeight, innerWidth } = window;
       renderer.setSize(innerWidth, innerHeight);
+      composer.setSize(innerWidth, innerHeight);
       currentCamera.aspect = innerWidth / innerHeight;
       currentCamera.updateProjectionMatrix();
     };
