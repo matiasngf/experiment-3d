@@ -84,7 +84,7 @@ setup({
 
       rotateMesh(solarSystem, 0.0001);
       rotateMesh(sun, 0.001);
-      rotateMesh(earthOrbit, 0.001);
+      rotateMesh(earthOrbit, 0.0001);
       rotateMesh(earth, 0.001);
       rotateMesh(moonOrbit, 0.001);
       rotateMesh(moon, 0.001);

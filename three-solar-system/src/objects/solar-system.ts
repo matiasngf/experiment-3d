@@ -4,7 +4,7 @@ import { sun } from "./sun";
 
 export const solarSystem = new Object3D();
 solarSystem.add(sun);
-earthOrbit.position.x = 20;
+earthOrbit.position.x = 400;
 solarSystem.add(earthOrbit);
 
 export const earthLightShadow = new DirectionalLight(0xffffff, 1);
@@ -15,6 +15,12 @@ earthLightShadow.target.position.set(
   earthOrbit.position.y,
   earthOrbit.position.z
 );
+earthLightShadow.shadow.camera.left = -1.5
+earthLightShadow.shadow.camera.right = 1.5
+earthLightShadow.shadow.camera.top = 1.5
+earthLightShadow.shadow.camera.bottom = -1.5
+earthLightShadow.shadow.camera.near = 350
+earthLightShadow.shadow.camera.far = 450
 solarSystem.add(earthLightShadow);
 solarSystem.add(earthLightShadow.target);
 

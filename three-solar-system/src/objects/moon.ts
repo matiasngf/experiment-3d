@@ -1,6 +1,6 @@
 import { Mesh, MeshPhongMaterial, MeshPhysicalMaterial, Object3D, PerspectiveCamera, SphereGeometry, TextureLoader, Vector3 } from "three";
 
-const moonGeometry = new SphereGeometry(0.2, 32, 32);
+const moonGeometry = new SphereGeometry(0.3, 32, 32);
 
 const textureLoader = new TextureLoader();
 const moonMap = textureLoader.load('/textures/moon/2k_moon.jpg');
