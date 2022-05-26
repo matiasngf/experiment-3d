@@ -20,10 +20,11 @@ export const earthOrbit = new Object3D();
 earthOrbit.add(earth);
 earthOrbit.add(moonOrbit);
 moonOrbit.position.x = 10;
+moonOrbit.position.z = -10;
 
 export const earthCamera = new PerspectiveCamera();
 earth.add(earthCamera);
-// earthCamera.position.x = 8;
-earthCamera.position.y = 2;
-earthCamera.position.z = 30;
+earthCamera.position.x = 1;
+earthCamera.position.y = -0.5;
+earthCamera.position.z = 4;
 earthCamera.lookAt(new Vector3(0,0,0));

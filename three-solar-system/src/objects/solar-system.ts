@@ -6,6 +6,7 @@ export const solarSystem = new Object3D();
 solarSystem.add(sun);
 earthOrbit.position.x = 400;
 solarSystem.add(earthOrbit);
+earthOrbit.rotation.y = 3;
 
 export const earthLightShadow = new DirectionalLight(0xffffff, 1);
 earthLightShadow.castShadow = true;
