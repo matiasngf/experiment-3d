@@ -1,9 +1,9 @@
-import { AxesHelper } from "three";
+import { AxesHelper, CameraHelper, DirectionalLightHelper } from "three";
 import { OnAnimationFrame, setup } from "./setup";
 import GUI from "lil-gui";
 // Objects
-import { centerLight } from "./objects/centerLight";
-import { solarSystem, solarSystemCamera } from "./objects/solar-system";
+import { ambientLight, centerLight } from "./objects/generalLights";
+import { earthLightShadow, solarSystem, solarSystemCamera } from "./objects/solar-system";
 import { sun } from "./objects/sun";
 import { earth, earthCamera, earthOrbit } from "./objects/earth";
 import { moon, moonCamera, moonOrbit } from "./objects/moon";
@@ -17,9 +17,14 @@ setup({
     const axesHelper = new AxesHelper( 5 );
     gui.add(axesHelper, 'visible').name('Global Axes');
     scene.add( axesHelper );
-    scene.add(centerLight);
+    scene.add(ambientLight);
     scene.add(solarSystem);
 
+    const shadowHelper = new CameraHelper(earthLightShadow.shadow.camera);
+    scene.add(shadowHelper);
+    shadowHelper.visible = false;
+    gui.add(shadowHelper, 'visible').name('Directional Light Helper');
+    
     makeAxisGrid(gui, solarSystem, 'Solar System Orbit', 60);
     makeAxisGrid(gui, earthOrbit, 'Earth Orbit', 10);
     makeAxisGrid(gui, moonOrbit, 'Moon Orbit', 2);
@@ -79,7 +84,7 @@ setup({
 
       rotateMesh(solarSystem, 0.0001);
       rotateMesh(sun, 0.001);
-      rotateMesh(earthOrbit, 0.005);
+      rotateMesh(earthOrbit, 0.001);
       rotateMesh(earth, 0.001);
       rotateMesh(moonOrbit, 0.001);
       rotateMesh(moon, 0.001);

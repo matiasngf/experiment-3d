@@ -1,8 +1,15 @@
-import { Mesh, MeshPhongMaterial, Object3D, PerspectiveCamera, SphereGeometry, Vector3 } from "three";
+import { Mesh, MeshPhongMaterial, MeshPhysicalMaterial, Object3D, PerspectiveCamera, SphereGeometry, TextureLoader, Vector3 } from "three";
 
 const moonGeometry = new SphereGeometry(0.2, 32, 32);
-const moonMaterial = new MeshPhongMaterial({color: 0x888888, emissive: 0x222222});
+
+const textureLoader = new TextureLoader();
+const moonMap = textureLoader.load('/textures/moon/2k_moon.jpg');
+const moonMaterial = new MeshPhysicalMaterial({
+  map: moonMap
+});
 export const moon = new Mesh(moonGeometry, moonMaterial);
+moon.castShadow = true;
+moon.receiveShadow = true;
 export const moonOrbit = new Object3D();
 moonOrbit.add(moon);
 

@@ -24,14 +24,17 @@ export const setup = ({
     const scene = new Scene();
     
     // renderer
-    const renderer = new WebGLRenderer({antialias: true});
+    const renderer = new WebGLRenderer({
+      antialias: true,
+    });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(0x000000, 1);
+    renderer.shadowMap.enabled = true;
     
     // camera
     const camera = new PerspectiveCamera();
     camera.lookAt(new Vector3(0,0,0));
-    
+
     let currentCamera: PerspectiveCamera = camera;
     const setCurrentCamera: SetCurrentCamera = (camera) => {
       currentCamera = camera;
