@@ -28,6 +28,13 @@ export abstract class EngineScene extends Scene {
     }
   }
 
+  public getEngine = () => {
+    if(!this.engine) {
+      throw new Error("Engine not set");
+    }
+    return this.engine as Engine;
+  }
+
   public _startScene = (engine: Engine) => {
     this.started = true;
     this.engine = engine;

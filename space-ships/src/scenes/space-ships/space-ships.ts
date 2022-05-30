@@ -1,4 +1,4 @@
-import { CubeTextureLoader, DirectionalLight, Mesh, PerspectiveCamera, Scene, Vector3 } from 'three'
+import { CubeTextureLoader, DirectionalLight, Mesh, PerspectiveCamera, Scene, TextureLoader, Vector3, WebGLCubeRenderTarget } from 'three'
 import { Engine, EngineScene } from '../../engine'
 import { Earth } from '../../objects/earth';
 import { SpaceAmbientLight } from '../../objects/space-ambient-light';
@@ -28,31 +28,21 @@ export class SpaceShipsScene extends EngineScene {
     this.sunLight.position.x = 10
     this.add(this.sunLight);
     this.add(this.sunLight.target);
-
-    const loader = new CubeTextureLoader();
-    const texture = loader.load([
-      '/textures/sky/right.png',
-      '/textures/sky/left.png',
-      '/textures/sky/top.png',
-      '/textures/sky/bottom.png',
-      '/textures/sky/front.png',
-      '/textures/sky/back.png',
-      // '/textures/sky/back.png',
-      // '/textures/sky/top.png',
-      // '/textures/sky/bottom.png',
-      // '/textures/sky/right.png',
-      // '/textures/sky/left.png',
-    ]);
-    this.background = texture;
   }
 
   public onStart = () => {
+    const loader = new TextureLoader();
+    const texture = loader.load('/textures/2k_stars_milky_way.jpeg', () => {
+      const rt = new WebGLCubeRenderTarget(texture.image.height);
+      const engine = this.getEngine();
+      rt.fromEquirectangularTexture(engine.renderer, texture);
+      this.background = rt.texture;
+    });
     this.spawnPlayerShip();
   }
 
   private spawnPlayerShip = () => {
     this.playerShip = new SpaceShip();
-    // this.playerShip.rotation.y = 90;
     this.add(this.playerShip);
     this.setActiveCamera(this.playerShip.camera);
   }

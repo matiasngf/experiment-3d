@@ -22,7 +22,7 @@ export class SpaceShip extends Group {
     this.camera = externalCamera;
 
     const spaceLight = new PointLight(0xffffff, 1);
-    this.camera.add(spaceLight);
+    // this.camera.add(spaceLight);
     spaceLight.position.set(0, 0, 0);
   }
 
