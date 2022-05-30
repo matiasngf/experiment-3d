@@ -1,13 +1,55 @@
-import { Camera, Scene } from "three";
+import { Camera, PerspectiveCamera, Scene, Vector3 } from "three";
+import { Engine } from "./engine";
 
 export abstract class EngineScene extends Scene {
   
   activeCamera: Camera;
+  engine?: Engine;
+  onStart?: () => void;
   onUpdate?: (time: number) => void;
 
-  constructor(camera: Camera) {
-    super()
+  public started: boolean = false;
+  public ended: boolean = false;
+
+  public pressedKeys: {[key: string]: boolean} = {};
+
+  constructor() {
+    super();
+    const InitialCamera = new PerspectiveCamera();
+    InitialCamera.position.x = 1
+    InitialCamera.lookAt(new Vector3(0,0,0));
+    this.activeCamera = InitialCamera;
+  }
+
+  setActiveCamera = (camera: Camera) => {
     this.activeCamera = camera;
+    if(this.engine && !this.ended) {
+      this.engine.setCamera(camera);
+    }
+  }
+
+  public _startScene = (engine: Engine) => {
+    this.started = true;
+    this.engine = engine;
+    document.onkeydown = (e) => {
+      const code = e.key;
+      this.pressedKeys[code] = true;
+    }
+    document.onkeyup = (e) => {
+      const code = e.key;
+      delete this.pressedKeys[code];
+    }
+    if(typeof this.onStart === 'function') {
+      this.onStart();
+    }
+  }
+
+  public isCodePressed = (code: string) => {
+    return this.pressedKeys[code];
+  }
+
+  public _endScene = () => {
+    this.ended = true;
   }
 
   public _onUpdate = (time: number) => {

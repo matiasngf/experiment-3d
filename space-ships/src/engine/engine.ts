@@ -16,12 +16,19 @@ export class Engine {
   public renderer: WebGLRenderer;
 
   constructor(options: EngineOptions) {
-    this.activeScene = new EmptyScene();
+    this.activeScene = new EmptyScene(this);
     this.activeCamera = this.activeScene.activeCamera;
     this.renderer = new WebGLRenderer({
       antialias: true,
     });
     this.document = options.document;
+  }
+
+  private startScene = (scene: EngineScene) => {
+    this.activeScene._endScene();
+    scene._startScene(this);
+    this.activeScene = scene;
+    this.setCamera(scene.activeCamera);
   }
 
   public setCamera = (camera: Camera) => {
@@ -30,8 +37,7 @@ export class Engine {
   }
 
   public setScene = (scene: EngineScene) => {
-    this.activeScene = scene;
-    this.setCamera(this.activeScene.activeCamera);
+    this.startScene(scene);
   }
 
   public start = () => {

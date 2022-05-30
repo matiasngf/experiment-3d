@@ -1,4 +1,5 @@
 import { Engine } from "./engine";
+import { MenuScene } from "./scenes/menu";
 import { SpaceShipsScene } from "./scenes/space-ships";
 
 const engine = new Engine({
@@ -10,6 +11,8 @@ engine.start();
 document.body.style.margin = '0';
 document.body.appendChild( engine.renderer.domElement );
 
-const SpaceScene = new SpaceShipsScene();
+const scene = new MenuScene();
+engine.setScene(scene);
 
-engine.setScene(SpaceScene);
+const gameScene = new SpaceShipsScene();
+engine.setScene(gameScene);
