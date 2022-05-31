@@ -7,6 +7,7 @@ export abstract class EngineScene extends Scene {
   engine?: Engine;
   onStart?: () => void;
   onUpdate?: (time: number) => void;
+  onWindowResize?: (width: number, height: number) => void;
 
   public started: boolean = false;
   public ended: boolean = false;
@@ -63,5 +64,12 @@ export abstract class EngineScene extends Scene {
     if( typeof this.onUpdate === 'function') {
       this.onUpdate(time);
     }
+  }
+
+  public _onWindowResize = () => {
+    if( typeof this.onWindowResize === 'function') {
+      this.onWindowResize(this.getEngine().width, this.getEngine().height);
+    }
+
   }
 }

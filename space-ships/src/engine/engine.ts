@@ -14,6 +14,8 @@ export class Engine {
   public activeCamera: CameraType;
   public document: Document;
   public renderer: WebGLRenderer;
+  public width: number = 1;
+  public height: number = 1;
 
   constructor(options: EngineOptions) {
     this.activeScene = new EmptyScene(this);
@@ -52,11 +54,16 @@ export class Engine {
 
   private onWindowResize = () => {
     const { innerHeight, innerWidth } = window;
+    this.width = innerWidth;
+    this.height = innerHeight;
     this.renderer.setSize(innerWidth, innerHeight);
     // this.composer.setSize(innerWidth, innerHeight);
     if(this.activeCamera instanceof PerspectiveCamera) {
       this.activeCamera.aspect = innerWidth / innerHeight;
       this.activeCamera.updateProjectionMatrix();
+    }
+    if(typeof this.activeScene._onWindowResize === 'function') {
+      this.activeScene._onWindowResize();
     }
   }
 
