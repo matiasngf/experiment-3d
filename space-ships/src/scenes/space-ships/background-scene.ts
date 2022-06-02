@@ -1,53 +1,47 @@
-import { DirectionalLight, Euler, Matrix4, Mesh, PerspectiveCamera, Scene } from "three";
-import { EngineScene } from "../../engine";
+import { Mesh, PerspectiveCamera, Scene, TextureLoader, WebGLCubeRenderTarget } from "three";
 import { Earth } from "../../objects/earth";
 import { SpaceAmbientLight } from "../../objects/space-ambient-light";
-import { SunLight } from "../../objects/sun-light";
+import { SpaceShipsScene } from "./space-ships";
 
 export class BackgroundScene extends Scene {
   activeCamera: PerspectiveCamera;
   earth: Mesh;
-  sunLight: DirectionalLight;
-  parentScene: EngineScene;
+  parentScene: SpaceShipsScene;
 
-  constructor(parentScene: EngineScene) {
+  constructor(parentScene: SpaceShipsScene) {
     super();
     this.parentScene = parentScene;
     this.activeCamera = new PerspectiveCamera();
     this.activeCamera.far = 100000;
-    // this.position.z = 100;
     this.add(this.activeCamera);
-    // this.background = new Color(0x0000FF);
     this.earth = Earth();
     this.add(this.earth);
-    this.earth.position.z = -300;
+    this.earth.position.x = -50;
+    this.earth.position.y = -30;
+    this.earth.position.z = -150;
+    this.earth.rotation.y = 0;
 
-    const sunLight = SunLight();
-    this.sunLight = sunLight;
-    this.sunLight.position.z = 10
-    this.sunLight.position.x = 10
-    this.add(this.sunLight);
-    this.add(this.sunLight.target);
-
+    this.add(this.parentScene.sunLight.clone());
     this.add(SpaceAmbientLight());
 
-    console.log('constructed');
+    const loader = new TextureLoader();
+
+    const texture = loader.load('/textures/2k_stars_milky_way.jpeg', () => {
+      const rt = new WebGLCubeRenderTarget(texture.image.height);
+      const engine = this.parentScene.getEngine();
+      rt.fromEquirectangularTexture(engine.renderer, texture);
+      this.background = rt.texture;
+    });
+  }
+
+  onResizeCamera = () => {
+    const engine = this.parentScene.getEngine();
+    this.activeCamera.aspect = engine.width / engine.height;
+    this.activeCamera.updateProjectionMatrix();
   }
 
   onUpdate() {
-    // TODO copy props from parent camara to currentCamera
-    
-    // make sure the matrix world is up to date
-    const parentCamera = this.parentScene.activeCamera
-    
-    parentCamera.getWorldQuaternion(this.activeCamera.quaternion);
-    // this.activeCamera.quaternion.copy(this.parentScene.activeCamera.quaternion);
-    
-    // this.activeCamera.rotation.set(
-    //   this.parentScene.activeCamera.rotation.x,
-    //   this.parentScene.activeCamera.rotation.y,
-    //   this.parentScene.activeCamera.rotation.z
-    // )
+    this.parentScene.activeCamera.getWorldQuaternion(this.activeCamera.quaternion);
     this.earth.rotation.y += 0.0001;
   }
 

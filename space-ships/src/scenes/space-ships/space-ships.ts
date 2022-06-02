@@ -20,11 +20,11 @@ export class SpaceShipsScene extends EngineScene {
     super();
     // add objects
     this.add(SpaceAmbientLight());
-
     const sunLight = SunLight();
     this.sunLight = sunLight;
-    this.sunLight.position.z = 10
-    this.sunLight.position.x = 10
+    this.sunLight.position.z = -50
+    this.sunLight.position.x = 200
+    this.sunLight.position.y = 30
     this.add(this.sunLight);
     this.add(this.sunLight.target);
   }
@@ -42,15 +42,8 @@ export class SpaceShipsScene extends EngineScene {
     if(!this.engine) {
       throw new Error("Engine not set");
     }
-    const loader = new TextureLoader();
-
-    const texture = loader.load('/textures/2k_stars_milky_way.jpeg', () => {
-      const rt = new WebGLCubeRenderTarget(texture.image.height);
-      const engine = this.getEngine();
-      rt.fromEquirectangularTexture(engine.renderer, texture);
-      this.background = rt.texture;
-    });
     this.spawnPlayerShip();
+    // this.spawnPlayerCamera();
     this.addBackgroundScene();
   }
 
@@ -59,6 +52,17 @@ export class SpaceShipsScene extends EngineScene {
     this.add(this.playerShip);
     this.setActiveCamera(this.playerShip.camera);
   }
+
+  private spawnPlayerCamera() {
+    const camera = new PerspectiveCamera();
+    camera.lookAt(new Vector3(0, 4, -5));
+    camera.far = 7000
+    this.setActiveCamera(camera);
+  }
+
+  public onWindowResize = (width: number, height: number) => {
+    this.backgroundScene?.onResizeCamera();
+  };
 
   public onUpdate = (time: number): void => {
     if(!this.started || !this.engine || this.ended) {
@@ -88,8 +92,16 @@ export class SpaceShipsScene extends EngineScene {
       if(this.isCodePressed('ArrowRight')) {
         this.playerShip.rotateZ(-this.shipRotation * 2);
       }
-      if(this.isCodePressed(' ')) {
+      if(this.isCodePressed('a')) {
+        this.playerShip.rotateY(this.shipRotation);
+      }
+      if(this.isCodePressed('d')) {
+        this.playerShip.rotateY(-this.shipRotation);
+      }
+      if(this.isCodePressed('w')) {
         this.playerShip.translateZ(-2);
+      } else if(this.isCodePressed('s')) {
+        this.playerShip.translateZ(-0.5);
       } else {
         this.playerShip.translateZ(-1);
       }
