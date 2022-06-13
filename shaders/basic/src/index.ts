@@ -3,14 +3,16 @@ import { WebGLRenderer, PerspectiveCamera, Scene, Vector3, AmbientLight, Directi
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { ground } from './ground';
 import { cube } from './cube';
-import { sphere } from './sphere';
+import { AlienSphere } from './alien-sphere';
+import { PhongSphere } from './phong-sphere';
 
 // scene
 const scene = new Scene();
 scene.add( ground );
 ground.position.y = -2;
 // this one has shader
-scene.add( sphere );
+// scene.add( AlienSphere );
+scene.add( PhongSphere);
 
 // renderer
 const renderer = new WebGLRenderer({antialias: true});
@@ -40,7 +42,7 @@ controls.update();
 // render loop
 const onAnimationFrameHandler = (timeStamp: number) => {
   // update the time uniform of the shader
-  sphere.material.uniforms.time.value = timeStamp / 1000;
+  AlienSphere.material.uniforms.time.value = timeStamp / 1000;
   renderer.render(scene, camera);
   window.requestAnimationFrame(onAnimationFrameHandler);
 }

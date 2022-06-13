@@ -1,8 +1,7 @@
 import { SphereGeometry, Mesh, ShaderMaterial, Vector3 } from "three";
+import { hexToRgb } from "./utils/hexToRgb";
 
 const _VS = `
-uniform float time;
-
 // Source from noise code: https://www.shadertoy.com/view/4dS3Wd
 float hash(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }
 float hash(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
@@ -20,6 +19,7 @@ float noise(vec3 x) {
 
 varying vec3 vNormal;
 varying float vTimedNoise;
+uniform float time;
 void main() {
   float scaledTime = time * 0.2;
   vTimedNoise = noise((normal + scaledTime) * 2.5);
@@ -53,23 +53,22 @@ uniform vec3 colorB;
 uniform vec3 colorC;
 
 void main() {
-  float n = noise(vNormal * 5.0 + time * 0.2);
+  // smooth the vTimedNoise vector using normal
+  vec3 normal = normalize(vNormal);
+  float normalDiffLength = 1.0 - length(vNormal);
+  float vTimedNoiseSmooth = vTimedNoise + (vTimedNoise * normalDiffLength);
+  vTimedNoiseSmooth = clamp(vTimedNoiseSmooth, 0.0, 1.0);
+
+  float n = noise(normal * 5.0 + time * 0.2);
   vec3 color = mix(colorA, colorB, n);
-  color = mix(color, colorC, pow(vTimedNoise, 2.0));
-  color = mix(color, vec3(1.0), pow(vTimedNoise, 20.0));
+  color = mix(color, colorC, pow(vTimedNoiseSmooth, 2.0));
+  color = mix(color, vec3(1.0), pow(vTimedNoiseSmooth, 20.0));
+  
   gl_FragColor = vec4(color, 1.0);
+
+  // gl_FragColor = vec4(vec3(vTimedNoiseSmooth), 1.0);
 }
 `;
-
-const hexToRgb = (hex: string) => {
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if(!result) {return {r: 0, g: 0, b: 0}}
-  return {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  };
-}
 
 const hexToVector3 = (hex: string) => {
   const rgb = hexToRgb(hex);
@@ -78,7 +77,7 @@ const hexToVector3 = (hex: string) => {
 
 const material = new ShaderMaterial({
   uniforms: {
-    time: { value: 1 },
+    time: { value: 4 },
     colorA: { value: new Vector3(0.427, 0.133, 0.82) },
     colorB: { value: new Vector3(0.067, 0.047, 0.235) },
     colorC: { value: hexToVector3("#51b7ff") }
@@ -88,9 +87,9 @@ const material = new ShaderMaterial({
 });
 
 const size = 3;
-const sides = 32 * 2 * 2;
+const sides = 16 * 2 * 2 * 2;
 const geometry = new SphereGeometry( size/2, sides, sides);
-export const sphere = new Mesh( geometry, material );
-sphere.castShadow = true;
+export const AlienSphere = new Mesh( geometry, material );
+AlienSphere.castShadow = true;
 
-sphere.position.set(0, 0, 0)
+AlienSphere.position.set(0, 0, 0)
