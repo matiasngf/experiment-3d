@@ -53,10 +53,11 @@ uniform vec3 colorB;
 uniform vec3 colorC;
 
 void main() {
-  // smooth the vTimedNoise vector using normal
+  // TODO calculate new normals based on noise on vertex shader and use that to correct vTimedNoiseSmooth
+  // smooth the vTimedNoise vector
   vec3 normal = normalize(vNormal);
-  float normalDiffLength = 1.0 - length(vNormal);
-  float vTimedNoiseSmooth = vTimedNoise + (vTimedNoise * normalDiffLength);
+  float normalDiffLength = 1.0 / length(vNormal);
+  float vTimedNoiseSmooth = vTimedNoise * normalDiffLength;
   vTimedNoiseSmooth = clamp(vTimedNoiseSmooth, 0.0, 1.0);
 
   float n = noise(normal * 5.0 + time * 0.2);

@@ -11,7 +11,7 @@ const scene = new Scene();
 scene.add( ground );
 ground.position.y = -2;
 // this one has shader
-// scene.add( AlienSphere );
+scene.add( AlienSphere );
 scene.add( PhongSphere);
 
 // renderer
