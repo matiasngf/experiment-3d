@@ -53,7 +53,7 @@ const phongFS = `
 
 export const PhongSphere = new Mesh(
   // new SphereGeometry(1, 16, 16),
-  new CapsuleGeometry(1, 1, 16, 16),
+  new CapsuleGeometry(1, 1, 64, 64),
   new ShaderMaterial({
     uniforms: {
       glossiness: { value: 20 },
