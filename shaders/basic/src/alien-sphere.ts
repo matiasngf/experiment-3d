@@ -1,5 +1,5 @@
 import { SphereGeometry, Mesh, ShaderMaterial, Vector3 } from "three";
-import { hexToRgb } from "./utils/hexToRgb";
+import { hexToVector3 } from "./utils/hexToVector3";
 
 const _VS = `
 // Source from noise code: https://www.shadertoy.com/view/4dS3Wd
@@ -70,11 +70,6 @@ void main() {
   // gl_FragColor = vec4(vec3(vTimedNoiseSmooth), 1.0);
 }
 `;
-
-const hexToVector3 = (hex: string) => {
-  const rgb = hexToRgb(hex);
-  return new Vector3(rgb.r / 255, rgb.g / 255, rgb.b / 255);
-}
 
 const material = new ShaderMaterial({
   uniforms: {

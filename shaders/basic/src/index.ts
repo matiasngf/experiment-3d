@@ -9,7 +9,7 @@ import { BlinnPhongSphere } from './blinn-phong-sphere';
 
 // scene
 const scene = new Scene();
-scene.add( ground );
+// scene.add( ground );
 ground.position.y = -2;
 
 // scene.add( AlienSphere );
@@ -19,7 +19,7 @@ scene.add( BlinnPhongSphere );
 // renderer
 const renderer = new WebGLRenderer({antialias: true});
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setClearColor(0x7ec0ee, 1);
+renderer.setClearColor(0x1f1f1f, 1);
 renderer.shadowMap.enabled = true;
 
 // lights
