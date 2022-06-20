@@ -53,10 +53,11 @@ const blinnPhongFS = `
     // combining the two lights
     vec4 light = vec4(vLambertLight + vSpecularLight, 1.0);
 
-    // 
+    // fresnel
+    float fresnel = (1.0 - dot(normal, viewDirection)) * 0.10;
 
     // adding lights to color
-    gl_FragColor = vec4(vec3(light), 1.0);
+    gl_FragColor = vec4(vec3(light + fresnel), 1.0);
   }
 `;
 
