@@ -1,8 +1,9 @@
-import { RepeatWrapping, ShaderMaterial, TextureLoader, UniformsLib, Vector3 } from "three";
+import { RepeatWrapping, ShaderMaterial, TextureLoader, UniformsLib, Vector3, Vector4 } from "three";
 import { hexToVector3 } from "../../utils/hexToVector3";
 
 import metalTextureColorUrl from './textures/metal-corroded-heavy-color.jpg';
 import metalTextureNormalUrl from './textures/metal-corroded-heavy-normal.jpg';
+import metalTextureSpecularUrl from './textures/metal-corroded-heavy-specular.jpg';
 
 const MetalCorroedVertexShader = `
 varying vec3 vNormal;
@@ -30,6 +31,7 @@ varying vec3 vTangent;
 
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
+uniform sampler2D specularMap;
 uniform vec3 lightDirection;
 uniform float glossiness;
 uniform float normalScale;
@@ -63,9 +65,6 @@ void main() {
   vec3 normal = normalize(vNormal);
   normal = perturbNormal2Arb( viewDirection, normal );
   vec3 vLightDirection = normalize(lightDirection);
-
-  float specularExponent = pow(2.0, glossiness * 10.0) + 20.0;
-
   
   // diffuse light
   vec3 diffuseColor = texture2D(albedoMap, vUv).xyz;
@@ -73,12 +72,13 @@ void main() {
   vec3 vLambertLight = diffuseColor * lightColor * lambert;
 
   // specular light
-  
+  float specularLevel = texture2D(specularMap, vUv).x;
+  float specularExponent = pow(2.0, glossiness * specularLevel * 10.0) + 20.0;
   vec3 halfVector = normalize(vLightDirection + viewDirection);
   float specular = max(dot(halfVector, normal), 0.0);
   specular = pow(specular, specularExponent);
   specular = specular * smoothstep(0.0, 1.0, lambert * 2.0);
-  specular = specular * glossiness;
+  specular = specular * glossiness * specularLevel;
   vec3 vSpecularLight = lightColor * specular;
 
   // normal map
@@ -99,6 +99,9 @@ metalTextureColor.wrapS = metalTextureColor.wrapT = RepeatWrapping;
 const metalTextureNormal = new TextureLoader().load(metalTextureNormalUrl);
 metalTextureNormal.wrapS = metalTextureNormal.wrapT = RepeatWrapping;
 
+const metalTextureSpecular = new TextureLoader().load(metalTextureSpecularUrl);
+metalTextureSpecular.wrapS = metalTextureSpecular.wrapT = RepeatWrapping;
+
 export const MetalCorroedMaterial = new ShaderMaterial({
   uniforms: {
     albedoMap: {
@@ -107,9 +110,12 @@ export const MetalCorroedMaterial = new ShaderMaterial({
     normalMap: {
       value: metalTextureNormal
     },
+    specularMap: {
+      value: metalTextureSpecular
+    },
     normalScale: { value: 0.5 },
     lightColor: { value: hexToVector3("#ffffff") },
-    glossiness: { value: 0.4 },
+    glossiness: { value: 1.0 },
     lightDirection: { value: new Vector3(3, 3, 0) },
   },
   vertexShader: MetalCorroedVertexShader,
