@@ -5,7 +5,15 @@ This examlpe uses 3 maps to create a material:
 - a normal map
 - a specular map
 
+## Final image
 ![image](https://user-images.githubusercontent.com/29680544/175179396-95764386-ef65-49ea-af5e-6793426c1fb8.png)
+
+### Specular map
+![image](https://user-images.githubusercontent.com/29680544/175179637-3d5fa4c7-8cab-43bb-aa0d-95e9a017c552.png)
+
+## Normals + specular
+![image](https://user-images.githubusercontent.com/29680544/175179734-a2b9703c-a3ae-4787-aca5-8b5afaea46b4.png)
+
 
 
 Usefulls links:
