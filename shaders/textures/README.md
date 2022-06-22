@@ -1,5 +1,11 @@
 # Texture shaders
 
+This examlpe uses 3 maps to create a material:
+- a color map
+- a normal map
+- a specular map
+
+![image](https://user-images.githubusercontent.com/29680544/175179396-95764386-ef65-49ea-af5e-6793426c1fb8.png)
 
 
 Usefulls links:
