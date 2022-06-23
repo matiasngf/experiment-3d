@@ -1,12 +1,15 @@
 # Texture shaders
 
-This examlpe uses 3 maps to create a material:
+This examlpe uses 4 maps to create a material:
 - a color map
 - a normal map
 - a specular map
+- a bump map
+
+The bump map causes a vertex displacement on the geometry.
 
 ## Final image
-![image](https://user-images.githubusercontent.com/29680544/175179396-95764386-ef65-49ea-af5e-6793426c1fb8.png)
+![image](https://user-images.githubusercontent.com/29680544/175184821-c76f47ec-9311-4902-a009-8154664862d5.png)
 
 ### Specular map
 ![image](https://user-images.githubusercontent.com/29680544/175179637-3d5fa4c7-8cab-43bb-aa0d-95e9a017c552.png)
