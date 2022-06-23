@@ -4,17 +4,24 @@ import { hexToVector3 } from "../../utils/hexToVector3";
 import metalTextureColorUrl from './textures/metal-corroded-heavy-color.jpg';
 import metalTextureNormalUrl from './textures/metal-corroded-heavy-normal.jpg';
 import metalTextureSpecularUrl from './textures/metal-corroded-heavy-specular.jpg';
+import metalTextureBumpUrl from './textures/metal-corroded-heavy-bump.jpg';
 
 const MetalCorroedVertexShader = `
 varying vec3 vNormal;
 varying vec2 vUv;
 varying vec3 wPos;
 
+uniform sampler2D bumpMap;
+uniform float bumpScale;
+
 void main() {
   vUv = uv;
   vNormal = normal;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+  vec3 displacedPosition = position + normal * bumpScale * texture2D(bumpMap, uv).r;
+
   wPos = (modelMatrix * vec4(position, 1.0)).xyz;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPosition, 1.0);
 }
 `;
 
@@ -53,14 +60,60 @@ vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm ) {
 
 }
 
+// bump map calc
+uniform sampler2D bumpMap;
+uniform float bumpScale;
+
+    // Derivative maps - bump mapping unparametrized surfaces by Morten Mikkelsen
+    //	http://mmikkelsen3d.blogspot.sk/2011/07/derivative-maps.html
+
+    // Evaluate the derivative of the height w.r.t. screen-space using forward differencing (listing 2)
+
+vec2 dHdxy_fwd() {
+
+  float scaledBumpScale = bumpScale / 10.0;
+
+  vec2 dSTdx = dFdx( vUv );
+  vec2 dSTdy = dFdy( vUv );
+
+  float Hll = scaledBumpScale * texture2D( bumpMap, vUv ).x;
+  float dBx = scaledBumpScale * texture2D( bumpMap, vUv + dSTdx ).x - Hll;
+  float dBy = scaledBumpScale * texture2D( bumpMap, vUv + dSTdy ).x - Hll;
+
+  return vec2( dBx, dBy );
+
+}
+
+vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy ) {
+
+  vec3 vSigmaX = dFdx( surf_pos );
+  vec3 vSigmaY = dFdy( surf_pos );
+  vec3 vN = surf_norm;		// normalized
+
+  vec3 R1 = cross( vSigmaY, vN );
+  vec3 R2 = cross( vN, vSigmaX );
+
+  float fDet = dot( vSigmaX, R1 );
+
+  vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
+  return normalize( abs( fDet ) * surf_norm - vGrad );
+
+}
+
 void main() {
 
   // setup
   vec3 viewDirection = normalize(cameraPosition - wPos);
-
-  vec3 normal = normalize(vNormal);
-  normal = perturbNormal2Arb( viewDirection, normal );
   vec3 vLightDirection = normalize(lightDirection);
+
+  // normals
+  vec3 normal = normalize(vNormal);
+  
+  // bump map
+  normal = perturbNormalArb( wPos, normal, dHdxy_fwd() );
+
+  // normal map
+  normal = perturbNormal2Arb( -viewDirection, normal );
   
   // diffuse light
   vec3 diffuseColor = texture2D(albedoMap, vUv).xyz;
@@ -98,6 +151,9 @@ metalTextureNormal.wrapS = metalTextureNormal.wrapT = RepeatWrapping;
 const metalTextureSpecular = new TextureLoader().load(metalTextureSpecularUrl);
 metalTextureSpecular.wrapS = metalTextureSpecular.wrapT = RepeatWrapping;
 
+const metalTextureBump = new TextureLoader().load(metalTextureBumpUrl);
+metalTextureBump.wrapS = metalTextureBump.wrapT = RepeatWrapping;
+
 export const MetalCorroedMaterial = new ShaderMaterial({
   uniforms: {
     albedoMap: {
@@ -109,7 +165,13 @@ export const MetalCorroedMaterial = new ShaderMaterial({
     specularMap: {
       value: metalTextureSpecular
     },
-    normalScale: { value: 0.5 },
+    bumpMap: {
+      value: metalTextureBump
+    },
+    bumpScale: {
+      value: 0.5
+    },
+    normalScale: { value: 0.2 },
     lightColor: { value: hexToVector3("#ffffff") },
     glossiness: { value: 1.0 },
     lightDirection: { value: new Vector3(3, 3, 0) },
