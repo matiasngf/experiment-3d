@@ -9,16 +9,12 @@ const MetalCorroedVertexShader = `
 varying vec3 vNormal;
 varying vec2 vUv;
 varying vec3 wPos;
-varying vec3 vTangent;
 
 void main() {
   vUv = uv;
   vNormal = normal;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   wPos = (modelMatrix * vec4(position, 1.0)).xyz;
-  //calculate tangent
-  vec3 tangent = normalize(cross(vNormal, vec3(0.0, 0.0, 1.0)));
-  vTangent = tangent;
 }
 `;
 
