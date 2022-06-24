@@ -59,7 +59,7 @@ void main() {
   // sunsetColor
   float sunsetFactor = clamp(valueRemap(rawSunLight, -0.1, 0.6, -1.0, 1.0), -1.0, 1.0);
   sunsetFactor = cos(sunsetFactor * 3.14) * 0.5 + 0.5;
-  vec3 sunsetColor = vec3(0.325,0.173,0.149) * 2.0;
+  vec3 sunsetColor = vec3(0.325,0.173,0.149) * 2.3;
 
   // clouds
   float cloudFactor = texture2D(cloudMap, vUv).r;
@@ -70,13 +70,13 @@ void main() {
 
   // fresnel
   float fresnel = pow((1.0 - dot(normal, viewDirection)), 2.0) * 0.5;
-  fresnel += (1.0 - dot(normal, viewDirection)) * 0.1 + 0.1;
+  fresnel += (1.0 - dot(normal, viewDirection)) * 0.2 + 0.2;
   vec3 athmosphereColor = vec3(0.459,0.647,1.);
 
   vLambertLight = mix(vLambertLight, athmosphereColor, fresnel * sunLight);
 
   gl_FragColor = vec4(vec3(vLambertLight), 1.0);
-  // gl_FragColor = vec4(vec3(athmosphereColor * fresnel * sunLight), 1.0);
+  // gl_FragColor = vec4(vec3(sunsetFactor), 1.0);
 }
 `;
 
@@ -89,7 +89,7 @@ export const EarthMaterial = new ShaderMaterial({
     dayMap: {value: eathDayTexture},
     nightMap: {value: nightTexture},
     cloudMap: {value: cloudTexture},
-    lightDirection: { value: new Vector3(2, 0.5, 2) },
+    lightDirection: { value: new Vector3(1, 0.5, 1) },
   },
   vertexShader: EarthVertexShader,
   fragmentShader: EarthFragmentShader
