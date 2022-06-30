@@ -15,8 +15,9 @@ renderer.setClearColor(0x000000, 1);
 renderer.shadowMap.enabled = true;
 
 // camera
-const camera = new PerspectiveCamera(20);
-camera.position.set(6,3,-7);
+const camera = new PerspectiveCamera(1);
+const distance = 30;
+camera.position.set(distance * 5, distance * 0.5, distance * 3);
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.update();
 

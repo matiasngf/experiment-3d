@@ -3,6 +3,7 @@ import { ShaderMaterial, TextureLoader, Vector3 } from "three";
 import earthDayMapUrl from "./textures/8k_earth_daymap.jpg";
 import nightMapUrl from "./textures/8k_earth_nightmap.jpg";
 import cloudMapUrl from "./textures/8k_earth_clouds.jpg";
+import { lightDirection } from "../globals";
 
 const EarthVertexShader = `
 varying vec3 vNormal;
@@ -89,7 +90,7 @@ export const EarthMaterial = new ShaderMaterial({
     dayMap: {value: eathDayTexture},
     nightMap: {value: nightTexture},
     cloudMap: {value: cloudTexture},
-    lightDirection: { value: new Vector3(1, 0.5, 1) },
+    lightDirection: { value: lightDirection },
   },
   vertexShader: EarthVertexShader,
   fragmentShader: EarthFragmentShader
