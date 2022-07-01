@@ -48,7 +48,7 @@ void main() {
   float lambert = clamp(rawLambert, 0.0, 1.0);
 
   // sun light
-  float rawSunLight = valueRemap(rawLambert, 0.0, 0.2, 0.0, 1.0);
+  float rawSunLight = valueRemap(rawLambert, -0.1, 0.1, 0.0, 1.0);
   float sunLight = clamp(rawSunLight, 0.0, 1.0);
   vec3 vLambertLight = dayColor * lightColor * sunLight;
 
