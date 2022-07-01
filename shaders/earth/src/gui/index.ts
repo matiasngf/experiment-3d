@@ -11,6 +11,6 @@ const data = {
 gui.add(data, 'sunRotation', 0, 360).onChange((value: number) => {
   lightDirection.copy(originalLightDirection)
   const axis = new Vector3(0, 1, 0);
-  const angle = Math.PI * (value / 180);
+  const angle = Math.PI * (-value / 180);
   lightDirection.applyAxisAngle(axis, angle);
 })
