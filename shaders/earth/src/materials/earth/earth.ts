@@ -3,7 +3,7 @@ import { ShaderMaterial, TextureLoader, Vector3 } from "three";
 import earthDayMapUrl from "./textures/8k_earth_daymap.jpg";
 import nightMapUrl from "./textures/8k_earth_nightmap.jpg";
 import cloudMapUrl from "./textures/8k_earth_clouds.jpg";
-import { lightDirection } from "../globals";
+import { curveUp, lightDirection, perturbNormalArb, valueRemap } from "../globals";
 
 const EarthVertexShader = `
 varying vec3 vNormal;
@@ -30,9 +30,9 @@ uniform sampler2D nightMap;
 uniform sampler2D cloudMap;
 uniform vec3 lightDirection;
 
-float valueRemap(float value, float min, float max, float newMin, float newMax) {
-  return newMin + (newMax - newMin) * (value - min) / (max - min);
-}
+${valueRemap}
+${perturbNormalArb}
+${curveUp}
 
 void main() {
 
@@ -54,7 +54,8 @@ void main() {
 
   // add night map
   vec3 nightColor = texture2D(nightMap, vUv).rgb;
-  nightColor = nightColor * (1.0 - sunLight); // lights only at night
+  float nightLightsFactor = clamp(valueRemap(rawSunLight, 0.0, 0.15, 0.0, 1.0), 0.0, 1.0);
+  nightColor = nightColor * (1.0 - nightLightsFactor); // lights only at night
   vLambertLight += nightColor;
 
   // sunsetColor
@@ -62,22 +63,34 @@ void main() {
   sunsetFactor = cos(sunsetFactor * 3.14) * 0.5 + 0.5;
   vec3 sunsetColor = vec3(0.325,0.173,0.149) * 2.3;
 
+  // clouds normals
+  float cloudNormalScale = 0.01; 
+  vec3 cloudNormal = perturbNormalArb( wPos, normal, dHdxy_fwd(vUv, cloudMap, cloudNormalScale) );
+  float cloudNormalFactor = dot(cloudNormal, vLightDirection);
+  float cloudShadowFactor = clamp(
+    valueRemap(cloudNormalFactor, 0.0, 0.3, 0.3, 1.0),
+    0.3, 1.0
+  );
+  cloudShadowFactor = curveUp(cloudShadowFactor, 0.5);
+  
   // clouds
   float cloudFactor = texture2D(cloudMap, vUv).r;
+
   //sunset on clouds
-  vec3 cloudColor = vec3(1.0) * valueRemap(sunLight, 0.0, 1.0, 0.1, 1.0);
+  vec3 cloudColor = vec3(valueRemap(sunLight, 0.0, 1.0, 0.1, 1.0));
   cloudColor = mix(cloudColor, sunsetColor, sunsetFactor * pow(cloudFactor, 1.3));
+  cloudColor *= cloudShadowFactor;
   vLambertLight = mix(vLambertLight, cloudColor, cloudFactor);
 
   // fresnel
   float fresnel = pow((1.0 - dot(normal, viewDirection)), 2.0) * 0.5;
-  fresnel += (1.0 - dot(normal, viewDirection)) * 0.2 + 0.2;
+  fresnel += (1.0 - dot(normal, viewDirection)) * 0.2 + 0.3;
   vec3 athmosphereColor = vec3(0.459,0.647,1.);
 
   vLambertLight = mix(vLambertLight, athmosphereColor, fresnel * sunLight);
 
   gl_FragColor = vec4(vec3(vLambertLight), 1.0);
-  // gl_FragColor = vec4(vec3(sunsetFactor), 1.0);
+  // gl_FragColor = vec4(vec3(nightLightsFactor), 1.0);
 }
 `;
 

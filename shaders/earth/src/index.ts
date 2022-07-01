@@ -16,7 +16,7 @@ renderer.shadowMap.enabled = true;
 
 // camera
 const camera = new PerspectiveCamera(1);
-const distance = 30;
+const distance = 50;
 camera.position.set(distance * 5, distance * 0.5, distance * 3);
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.update();
