@@ -1,12 +1,9 @@
 import { Vector3 } from "three";
 
-// export const lightDirection = new Vector3(1, 0.5, 1);
-export const lightDirection = new Vector3(1, 0, 0);
-lightDirection.applyAxisAngle(new Vector3(0, 0, 1), Math.PI * (23 / 180));
+export const originalLightDirection = new Vector3(1, 0, 0);
+originalLightDirection.applyAxisAngle(new Vector3(0, 0, 1), Math.PI * (23 / 180));
 
-const axis = new Vector3(0, 1, 0);
-const angle = Math.PI * (-100 / 180);
-lightDirection.applyAxisAngle(axis, angle);
+export const lightDirection = originalLightDirection.clone();
 
 export const perturbNormal2Arb = `
 vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm, vec2 uv, sampler2D map, float scale ) {

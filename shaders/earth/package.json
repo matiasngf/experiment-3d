@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "@types/three": "^0.140.0",
+    "lil-gui": "^0.16.1",
     "three": "^0.140.2",
     "webpack": "^5.72.1"
   },

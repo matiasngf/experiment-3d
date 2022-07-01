@@ -1,6 +1,7 @@
 import { WebGLRenderer, PerspectiveCamera, Scene } from 'three';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import './gui';
 import { Earth } from './objects/earth';
 
 // scene
