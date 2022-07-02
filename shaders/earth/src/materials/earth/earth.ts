@@ -1,9 +1,9 @@
-import { ShaderMaterial, TextureLoader, Vector3 } from "three";
+import { LinearFilter, ShaderMaterial, TextureLoader, Vector3 } from "three";
 
 import earthDayMapUrl from "./textures/8k_earth_daymap.jpg";
 import nightMapUrl from "./textures/8k_earth_nightmap.jpg";
 import cloudMapUrl from "./textures/8k_earth_clouds.jpg";
-import { curveUp, lightDirection, perturbNormalArb, valueRemap } from "../globals";
+import { curveUp, lightDirection, perturbNormalArb, simplexNoise, valueRemap } from "../globals";
 
 const EarthVertexShader = `
 varying vec3 vNormal;
@@ -33,6 +33,7 @@ uniform vec3 lightDirection;
 ${valueRemap}
 ${perturbNormalArb}
 ${curveUp}
+${simplexNoise}
 
 void main() {
 
@@ -64,6 +65,9 @@ void main() {
   vec3 sunsetColor = vec3(0.325,0.173,0.149) * 2.3;
   // sunsetColor = vec3(0.825,0.673,0.609);
 
+  // noise
+  float noise = valueRemap(simplex3d_fractal(wPos * 100.0), -1.0, 1.0, 0.0, 1.0);
+
   // clouds normals
   float cloudNormalScale = 0.01; 
   vec3 cloudNormal = perturbNormalArb( wPos, normal, dHdxy_fwd(vUv, cloudMap, cloudNormalScale) );
@@ -76,6 +80,8 @@ void main() {
   
   // clouds
   float cloudFactor = texture2D(cloudMap, vUv).r;
+  float cloudNoiseFactor = clamp(valueRemap(cloudFactor, 0.0, 0.5, 0.5, 1.0) * noise, 0.0, 1.0);
+  cloudFactor = cloudFactor * cloudNoiseFactor;
 
   //sunset on clouds
   vec3 cloudColor = vec3(valueRemap(sunLight, 0.0, 1.0, 0.1, 1.0));
@@ -91,13 +97,14 @@ void main() {
   vLambertLight = mix(vLambertLight, athmosphereColor, fresnel * sunLight);
 
   gl_FragColor = vec4(vec3(vLambertLight), 1.0);
-  // gl_FragColor = vec4(vec3(sunsetFactor), 1.0);
+  // gl_FragColor = vec4(vec3(cloudNoiseFactor), 1.0);
 }
 `;
 
 const eathDayTexture = new TextureLoader().load(earthDayMapUrl);
 const nightTexture = new TextureLoader().load(nightMapUrl);
 const cloudTexture = new TextureLoader().load(cloudMapUrl);
+cloudTexture.magFilter = LinearFilter;
 
 export const EarthMaterial = new ShaderMaterial({
   uniforms: {
