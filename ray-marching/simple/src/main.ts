@@ -1,5 +1,5 @@
 import './style.css'
-import { WebGLRenderer, PerspectiveCamera, Scene } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Scene, Vector2, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -17,21 +17,32 @@ renderer.shadowMap.enabled = true;
 
 // camera
 const camera = new PerspectiveCamera();
-const distance = 50;
-camera.position.set(distance * 5, distance * 0.5, distance * 3);
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.update();
+camera.position.set(0.0, 2.0, 0.0);
+camera.rotation.x =  10 * Math.PI / 180
 
 //composer
 const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
-const rayMarchingPass = new ShaderPass(RayMarchingShader);
+const rayMarchingPass = new ShaderPass({
+  ...RayMarchingShader,
+  uniforms: {
+    cPos: { value: camera.position.clone() },
+    resolution: {value: new Vector2(window.innerWidth, window.innerHeight)},
+    cameraQuaternion: {value: camera.quaternion.clone()}
+  }
+});
 composer.addPass(rayMarchingPass);
 
 // render loop
 const onAnimationFrameHandler = (timeStamp: number) => {
+
+  // camera.rotateOnWorldAxis(new Vector3(0, 1, 0), 1 * Math.PI / 180);
+
   // update the time uniform of the shader
+  rayMarchingPass.uniforms.resolution.value.set( innerWidth, innerHeight );
+  rayMarchingPass.uniforms.cPos.value.copy(camera.position);
+  rayMarchingPass.uniforms.cameraQuaternion.value.copy(camera.quaternion);
   composer.render();
   window.requestAnimationFrame(onAnimationFrameHandler);
 }
@@ -44,6 +55,8 @@ const windowResizeHanlder = () => {
   composer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
+
+  rayMarchingPass.uniforms.resolution.value.set( innerWidth, innerHeight );
 };
 windowResizeHanlder();
 window.addEventListener('resize', windowResizeHanlder);
