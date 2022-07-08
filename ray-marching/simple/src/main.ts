@@ -1,10 +1,11 @@
 import './style.css'
-import { WebGLRenderer, PerspectiveCamera, Scene, Vector2, Vector3 } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Scene, Vector2, Vector3, GridHelper, Quaternion } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { RayMarchingShader } from './shaders/ray-marching';
+import { GameCamera, Player } from './objects';
 
 // scene
 const scene = new Scene();
@@ -16,9 +17,14 @@ renderer.setClearColor(0x000000, 1);
 renderer.shadowMap.enabled = true;
 
 // camera
-const camera = new PerspectiveCamera();
-camera.position.set(0.0, 2.0, 0.0);
-camera.rotation.x =  10 * Math.PI / 180
+const player = new Player();
+scene.add(player);
+const camera = player.camera;
+camera.fov = 30;
+
+// add grid helper
+const gridHelper = new GridHelper(50, 50);
+scene.add(gridHelper);
 
 //composer
 const composer = new EffectComposer(renderer);
@@ -29,7 +35,8 @@ const rayMarchingPass = new ShaderPass({
   uniforms: {
     cPos: { value: camera.position.clone() },
     resolution: {value: new Vector2(window.innerWidth, window.innerHeight)},
-    cameraQuaternion: {value: camera.quaternion.clone()}
+    cameraQuaternion: {value: camera.quaternion.clone()},
+    fov: {value: camera.fov}
   }
 });
 composer.addPass(rayMarchingPass);
@@ -37,12 +44,15 @@ composer.addPass(rayMarchingPass);
 // render loop
 const onAnimationFrameHandler = (timeStamp: number) => {
 
-  // camera.rotateOnWorldAxis(new Vector3(0, 1, 0), 1 * Math.PI / 180);
+  player.onFrame();
 
   // update the time uniform of the shader
   rayMarchingPass.uniforms.resolution.value.set( innerWidth, innerHeight );
-  rayMarchingPass.uniforms.cPos.value.copy(camera.position);
-  rayMarchingPass.uniforms.cameraQuaternion.value.copy(camera.quaternion);
+  const worldPos = new Vector3();
+  rayMarchingPass.uniforms.cPos.value.copy(camera.getWorldPosition(worldPos));
+  const cameraQuaternion = new Quaternion();
+  rayMarchingPass.uniforms.cameraQuaternion.value.copy(camera.getWorldQuaternion(cameraQuaternion));
+  rayMarchingPass.uniforms.fov.value = camera.fov;
   composer.render();
   window.requestAnimationFrame(onAnimationFrameHandler);
 }

@@ -18,6 +18,7 @@ export const RayMarchingShader = {
 		// custom uniforms
 		uniform vec3 cPos;
 		uniform vec4 cameraQuaternion;
+		uniform float fov;
 
 		varying vec2 vUv;
 		varying vec3 wPos;
@@ -28,10 +29,17 @@ export const RayMarchingShader = {
 		#define MAX_DISTANCE 100.0
 
 		float getDistance(vec3 p) {
-			vec4 sphere = vec4(0.0, 2.0, 10.0, 2.0);
+
+			vec4 sphere = vec4(0.0, 2.0, -15.0, 2.0);
 			float dist_to_sphere = length(p - sphere.xyz) - sphere.w;
+
+			vec4 sphere2 = vec4(3.0, 4.0, -20.0, 1.5);
+			float dist_to_sphere2 = length(p - sphere2.xyz) - sphere2.w;
+
 			float dist_to_plane = p.y;
+
 			float d = min(dist_to_sphere, dist_to_plane);
+			d = min(d, dist_to_sphere2);
 			return d;
 		}
 
@@ -75,13 +83,12 @@ export const RayMarchingShader = {
 			float aspectRatio = resolution.x / resolution.y;
 			vec3 cameraOrigin = cPos;
 
-			float fov = 50.0;
-			fov = fov / 90.0;
+			float fovMult = fov / 90.0;
 			
 			vec2 screenPos = ( gl_FragCoord.xy * 2.0 - resolution ) / resolution;
 			screenPos.x *= aspectRatio;
-			screenPos *= fov;
-			vec3 ray = vec3( screenPos.xy, 1.0 );
+			screenPos *= fovMult;
+			vec3 ray = vec3( screenPos.xy, -1.0 );
 			ray = quaterion_rotate(ray, cameraQuaternion);
 			ray = normalize( ray );
 
