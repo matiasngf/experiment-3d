@@ -12,4 +12,5 @@
 
 `/ray-marching/simple`
 
-![image](https://user-images.githubusercontent.com/29680544/177706333-57f2484d-1794-4d9d-bac6-cd747c0c0453.png)
+![image](https://user-images.githubusercontent.com/29680544/178081774-29fead99-5c1a-4df9-84e4-817fd32ea5be.png)
+
