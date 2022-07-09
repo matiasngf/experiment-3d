@@ -42,7 +42,7 @@ const rayMarchingPass = new ShaderPass({
 composer.addPass(rayMarchingPass);
 
 // render loop
-const onAnimationFrameHandler = (_timeStamp: number) => {
+const onAnimationFrameHandler = (timeStamp: number) => {
 
   player.onFrame();
 
