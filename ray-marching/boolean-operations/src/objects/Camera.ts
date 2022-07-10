@@ -37,7 +37,7 @@ export class GameCamera extends PerspectiveCamera {
     })
 
     this.position.set(0.0, 4.0, 0.0);
-    this.rotateOnAxis(XVector, degToRad(-5));
+    this.rotateOnAxis(XVector, degToRad(-3));
   }
 
   public isCodePressed = (code: string) => {

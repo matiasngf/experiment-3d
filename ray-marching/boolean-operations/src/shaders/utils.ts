@@ -25,6 +25,22 @@ RayHit Intersection(RayHit hit1, RayHit hit2) {
 RayHit Difference(RayHit hit1, RayHit hit2) {
   return Intersection(hit1, RayHit(-hit2.dist, hit2.color));
 }
+
+// Function by Sebastian Lague https://www.youtube.com/watch?v=Cp5WWtMoeKg&ab_channel=SebastianLague
+RayHit SmoothMin (RayHit hit1, RayHit hit2, float k) {
+  // distance mix
+  float d1 = hit1.dist;
+  float d2 = hit2.dist;
+  float h = max(k - abs(d1-d2), 0.0) / k;
+  float d = min(d1, d2) - h*h*h*k*1.0/6.0;
+
+  // color mix
+  float d3 = d1 + d2;
+  float cMix = d1 / d3;
+  vec3 c = mix(hit1.color, hit2.color, cMix);
+  
+  return RayHit(d, c);
+}
 `;
 
 export const distanceFunctions = `

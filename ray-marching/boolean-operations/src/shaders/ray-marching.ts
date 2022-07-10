@@ -79,6 +79,18 @@ export const RayMarchingShader = {
 			return pacman;
 		}
 
+		RayHit OtherSurface(vec3 p) {
+			RayHit sphere1 = RayHit(
+				sdSphere(p, 0.5),
+				vec3(1.0, 0.5, 0.5)
+			);
+			RayHit sphere2 = RayHit(
+				sdSphere(Translate(p, vec3(0.5, 0.9, 0.0)), 0.5),
+				vec3(0.5, 0.5, 1.0)
+			);
+			return SmoothMin(sphere1, sphere2, 0.5);
+		}
+
 		RayHit getSceneHit(vec3 p) {
 			RayHit pacman = PacmanSurface(
 					Rotate(
@@ -89,6 +101,12 @@ export const RayMarchingShader = {
 			RayHit stairs = StairsSurface(
 				Translate(p, vec3(-1.0, 0.0, -15.0)), 8
 			);
+
+			RayHit other = OtherSurface(
+				Translate(p, vec3(2.5, 5.0, -15.0))
+			);
+
+			return Union(pacman, Union(stairs, other));
 
 			return Union(pacman, stairs);
 		}

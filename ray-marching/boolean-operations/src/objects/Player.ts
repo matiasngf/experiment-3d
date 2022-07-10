@@ -23,7 +23,7 @@ export class Player extends Group {
       delete this.pressedKeys[code];
     })
     this.position.set(7.0, 0.0, -3.0);
-    this.rotateOnAxis(YVector, degToRad(30));
+    this.rotateOnAxis(YVector, degToRad(28));
   }
 
   public isCodePressed = (code: string) => {
