@@ -25,4 +25,5 @@
 
 `/ray-marching/boolean-operations`
 
-![image](https://user-images.githubusercontent.com/29680544/178091890-9e8eddb0-3538-4b37-be89-856c84849004.png)
+![image](https://user-images.githubusercontent.com/29680544/178155616-82ffc626-ac53-44ba-a6a1-4332193750ce.png)
+
