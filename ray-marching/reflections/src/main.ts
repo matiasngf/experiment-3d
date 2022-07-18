@@ -53,7 +53,6 @@ const onAnimationFrameHandler = (timeStamp: number) => {
 
   // update the time uniform of the shader
   rayMarchingPass.uniforms.uTime.value = timeStamp / 100;
-  rayMarchingPass.uniforms.resolution.value.set( innerWidth, innerHeight );
   const worldPos = new Vector3();
   rayMarchingPass.uniforms.cPos.value.copy(camera.getWorldPosition(worldPos));
   const cameraQuaternion = new Quaternion();
@@ -65,14 +64,15 @@ const onAnimationFrameHandler = (timeStamp: number) => {
 window.requestAnimationFrame(onAnimationFrameHandler);
 
 // resize
-const windowResizeHanlder = () => { 
-  const { innerHeight, innerWidth } = window;
+const windowResizeHanlder = () => {
+  const { innerHeight, innerWidth, devicePixelRatio } = window;
   renderer.setSize(innerWidth, innerHeight);
   composer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
 
-  rayMarchingPass.uniforms.resolution.value.set( innerWidth, innerHeight );
+  rayMarchingPass.uniforms.resolution.value.set( innerWidth * devicePixelRatio, innerHeight * devicePixelRatio );
+  rayMarchingPass.uniforms.resolution.value.needsUpdate = true;
 };
 windowResizeHanlder();
 window.addEventListener('resize', windowResizeHanlder);
