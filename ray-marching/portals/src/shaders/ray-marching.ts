@@ -40,23 +40,38 @@ export const RayMarchingShader = {
 		#define REFLECTION_MAX_DISTANCE 50.0
 
 		${structs}
-		${distanceFunctions}
 		${transformations}
+		${distanceFunctions}
 		${booleanFunctions}
 		${shaderObjects}
 
 		Portal getPortalHit(vec3 p) {
-			return Portal1(p);
+			return PortalUnion(Portal1(p), Portal2(p));
 		}
 
 		RayHit getSceneHit(vec3 p) {
 			RayHit PortalWithFrame1 = PortalPlatform(
-				Translate(p, vec3(-4.0, 0.0, -10.0))
+				Translate(p, portal1Center)
 			);
 			PortalWithFrame1 = Union(
 				PortalWithFrame1, Portal1(p).rayHit
 			);
-			return Union(FloorSurface(p), PortalWithFrame1);
+			RayHit PortalWithFrame2 = PortalPlatform(
+				Translate(p, portal2Center)
+			);
+			PortalWithFrame2 = Union(
+				PortalWithFrame2, Portal2(p).rayHit
+			);
+
+			RayHit Ball1Surf = ExampleBallSurface(Translate(
+				p,
+				vec3(4.0, 1.0, -6.5) + vec3(0.2, 0.0, 0.0) * sin(uTime * 0.2 + p.y * 3.0)
+			));
+
+			return Union(
+				Union(FloorSurface(p), Ball1Surf),
+				Union(PortalWithFrame1, PortalWithFrame2)
+			);
 		}
 
 		${getNormal}
@@ -148,6 +163,8 @@ export const RayMarchingShader = {
 						rayDirection = Rotate(rayDirection, portalHit.portalRotation);
 						vec3 rayTranslation = portalHit.portalTranslation - portalHit.portalCenter;
 						rayPosition = RotateArround(hit.position, portalHit.portalRotation, portalHit.portalCenter) + rayTranslation;
+						vec3 offsetDirection = Rotate(vec3(0.0, 0.0, -1.0), portalHit.portalRotation);
+						rayPosition += offsetDirection * REFLECTION_SURFACE_DIST * 20.0;
 						
 					} else {
 						// Not a portal, Light surface calculation

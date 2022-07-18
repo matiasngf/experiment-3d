@@ -102,29 +102,44 @@ float sdPlane(vec3 p, vec3 normal) {
 
 // sdCuboid(), sdCone(), and sdCylinder() are taken from Inigo Quilez's 3D distance functions article (https://iquilezles.org/articles/distfunctions):
 float sdCuboid(in vec3 p, in vec3 size) {
-    float h = size.x; 
-    float w = size.y;
-    float d = size.z;
-    vec3 q = abs(p) - 0.5 * vec3(w, h, d);
-    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+  float w = size.x;
+  float h = size.y; 
+  float d = size.z;
+  vec3 q = abs(p) - 0.5 * vec3(w, h, d);
+  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
 float sdCone(in vec3 p, in float b, in float h) {
-    p.y -= h;
-    vec2 q = h * vec2(b / h * 2.0, -2.0);
-    
-    vec2 w = vec2( length(p.xz), p.y );
-    vec2 a = w - q * clamp(dot(w, q) / dot(q, q), 0.0, 1.0);
-    vec2 c = w - q * vec2(clamp(w.x / q.x, 0.0, 1.0), 1.0);
-    float k = sign(q.y);
-    float d = min(dot(a, a), dot(c, c));
-    float s = max(k * (w.x * q.y - w.y * q.x), k * (w.y - q.y));
-    return sqrt(d) * sign(s);
+  p.y -= h;
+  vec2 q = h * vec2(b / h * 2.0, -2.0);
+  
+  vec2 w = vec2( length(p.xz), p.y );
+  vec2 a = w - q * clamp(dot(w, q) / dot(q, q), 0.0, 1.0);
+  vec2 c = w - q * vec2(clamp(w.x / q.x, 0.0, 1.0), 1.0);
+  float k = sign(q.y);
+  float d = min(dot(a, a), dot(c, c));
+  float s = max(k * (w.x * q.y - w.y * q.x), k * (w.y - q.y));
+  return sqrt(d) * sign(s);
 }
 
 float sdCylinder(in vec3 p, in float h, in float r) {
-    vec2 d = abs(vec2(length(p.xz), p.y)) - vec2(r, 0.5 * h);
-    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+  vec2 d = abs(vec2(length(p.xz), p.y)) - vec2(r, 0.5 * h);
+  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+
+
+float sdCube2(in vec3 p, in vec3 a, in vec3 b) {
+  vec3 maxA = vec3( max(a.x, b.x), max(a.y, b.y), max(a.z, b.z) );
+  vec3 minB = vec3( min(a.x, b.x), min(a.y, b.y), min(a.z, b.z) );
+  float w = maxA.x - minB.x;
+  float h = maxA.y - minB.y;
+  float d = maxA.z - minB.z;
+  float offsetW = (maxA.x + minB.x) * 0.5;
+  float offsetH = (maxA.y + minB.y) * 0.5;
+  float offsetD = (maxA.z + minB.z) * 0.5;
+  return sdCuboid(
+    Translate(p, vec3(offsetW, offsetH, offsetD)),
+    vec3(w, h, d));
 }
 
 `;

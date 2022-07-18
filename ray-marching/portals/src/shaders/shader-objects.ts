@@ -1,10 +1,14 @@
 export const shaderObjects = `
 
-vec3 portal1Center = vec3(-4.0, 1.0, -8.5);
-vec3 portal2Center = vec3(4.0, 1.0, -8.5);
+vec3 portal1Center = vec3(-4.0, 0.0, -8.0);
+vec3 portal2Center = vec3(4.0, 0.0, -8.0);
 
 vec3 pPortal1(vec3 p) {
   return Translate(p, portal1Center);
+}
+
+vec3 pPortal2(vec3 p) {
+  return Translate(p, portal2Center);
 }
 
 Material PortalDebugMaterial = Material(
@@ -12,12 +16,16 @@ Material PortalDebugMaterial = Material(
   0.0, 0.0
 );
 
+RayHit PortalSurfRay(vec3 p) {
+  return RayHit(
+    sdCube2(p, vec3(-1.0, 0.0, 0.0), vec3(1.0, 2.5, -0.22)),
+    PortalDebugMaterial
+  );
+}
+
 Portal PortalSurface(vec3 p, vec3 center, vec3 translation, vec3 rotation) {
   return Portal(
-    RayHit(
-      sdCuboid(p, vec3(3.0, 2.0, 0.5)),
-      PortalDebugMaterial
-    ),
+    PortalSurfRay(p),
     center,
     translation,
     rotation
@@ -28,14 +36,23 @@ Portal Portal1(vec3 p) {
   return PortalSurface(pPortal1(p), portal1Center, portal2Center, vec3(0.0, 180.0, 0.0));
 }
 
+Portal Portal2(vec3 p) {
+  return PortalSurface(pPortal2(p), portal2Center, portal1Center, vec3(0.0, 180.0, 0.0));
+}
+
 RayHit PortalPlatform(vec3 p) {
   Material PortalPlatformMaterial = Material(
     vec3(0.9, 0.9, 0.9),
     0.9, 0.2
   );
-  RayHit BaseSurface = RayHit(sdCuboid(p, vec3(0.1, 5.0, 5.0)), PortalPlatformMaterial);
-  vec3 frameSurfacePosition = Translate(p, vec3(0.0, 1.4, 0.0));
-  RayHit FrameSurface = RayHit(sdCuboid(frameSurfacePosition, vec3(3.0)), PortalPlatformMaterial);
+  RayHit BaseSurface = RayHit(
+    sdCube2(p, vec3(-2.5, 0.0, -2.5), vec3(2.5, 0.05, 2.5)),
+    PortalPlatformMaterial
+  );
+  RayHit FrameSurface = RayHit(
+    sdCube2(p, vec3(-1.5, 0.0, 0.0), vec3(1.5, 3.0, -0.5)),
+    PortalPlatformMaterial
+  );
   return SmoothMin(BaseSurface, FrameSurface, 0.5);
 }
 
@@ -48,6 +65,17 @@ RayHit FloorSurface(vec3 p) {
   return RayHit(
     sdPlane(p, vec3(0.0, 1.0, 0.0)),
     FloorMaterial
+  );
+}
+
+RayHit ExampleBallSurface(vec3 p) {
+  Material BallMaterial = Material(
+    vec3(0.5, 0.9, 0.5),
+    0.9, 0.6
+  );
+  return RayHit(
+    sdSphere(p, 0.5),
+    BallMaterial
   );
 }
 `;
