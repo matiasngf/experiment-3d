@@ -54,8 +54,10 @@ export const RayMarchingShader = {
 
 		RayHit getSceneHit(vec3 p) {
 			RayHit FloorObject = FloorSurface(p);
+			vec3 pBall = Translate(p, vec3(0.0, 1.0, -3.0));
+			pBall = Translate(pBall, vec3(.0, sin(uTime / 10.0), .0));
 			RayHit CenterObject = BallSurface(
-				Translate(p, vec3(0.0, 1.0, -3.0))
+				pBall
 			);
 			return Union(CenterObject, FloorObject);
 		}

@@ -1,5 +1,5 @@
 import './style.css'
-import { WebGLRenderer, Scene, Vector2, Vector3, GridHelper, Quaternion, TextureLoader } from 'three';
+import { WebGLRenderer, Scene, Vector2, Vector3, GridHelper, Quaternion, TextureLoader, RepeatWrapping } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
@@ -28,6 +28,7 @@ scene.add(gridHelper);
 
 // background image
 const backgroundTexture = new TextureLoader().load(backgroundMapUrl);
+backgroundTexture.wrapT = backgroundTexture.wrapS = RepeatWrapping;
 
 const getDeviceSize = () => {
   const {innerWidth, innerHeight, devicePixelRatio} = window;
