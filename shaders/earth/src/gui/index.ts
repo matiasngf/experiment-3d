@@ -4,13 +4,18 @@ import { lightDirection, originalLightDirection } from '../materials/globals';
 
 export const gui = new GUI();
 
-const data = {
+export const guiData = {
   sunRotation: 0,
+  autoSunRotation: false
 }
 
-gui.add(data, 'sunRotation', 0, 360).onChange((value: number) => {
+export const handleSunRotationChange = (value: number) => {
   lightDirection.copy(originalLightDirection)
   const axis = new Vector3(0, 1, 0);
   const angle = Math.PI * (-value / 180);
   lightDirection.applyAxisAngle(axis, angle);
-})
+}
+
+export const sunRotationGui = gui.add(guiData, 'sunRotation', 0, 360).onChange(handleSunRotationChange)
+
+gui.add(guiData, 'autoSunRotation')

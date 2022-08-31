@@ -1,7 +1,7 @@
 import { WebGLRenderer, PerspectiveCamera, Scene } from 'three';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import './gui';
+import { guiData, handleSunRotationChange, sunRotationGui } from './gui';
 import { Earth } from './objects/earth';
 
 // scene
@@ -25,6 +25,17 @@ controls.update();
 // render loop
 const onAnimationFrameHandler = (timeStamp: number) => {
   // update the time uniform of the shader
+  // console.log(guiData.autoSunRotation);
+  
+  if(guiData.autoSunRotation) {
+    let newRotation = guiData.sunRotation + 0.1;
+    if(newRotation > 360) {
+      newRotation -= 360
+    }
+    sunRotationGui.setValue(newRotation)
+    
+    // handleSunRotationChange(newRotation)
+  }
   renderer.render(scene, camera);
   window.requestAnimationFrame(onAnimationFrameHandler);
 }
