@@ -60,7 +60,7 @@ void main() {
   vLambertLight += nightColor;
 
   // sunsetColor
-  float sunsetFactor = clamp(valueRemap(rawSunLight, -0.1, 0.5, -1.0, 1.0), -1.0, 1.0);
+  float sunsetFactor = clamp(valueRemap(rawSunLight, -0.1, 0.7, -1.0, 1.0), -1.0, 1.0);
   sunsetFactor = cos(sunsetFactor * 3.14) * 0.5 + 0.5;
   vec3 sunsetColor = vec3(0.325,0.173,0.149) * 2.3;
   // sunsetColor = vec3(0.825,0.673,0.609);
@@ -85,7 +85,7 @@ void main() {
 
   //sunset on clouds
   vec3 cloudColor = vec3(valueRemap(sunLight, 0.0, 1.0, 0.1, 1.0));
-  cloudColor = mix(cloudColor, sunsetColor, sunsetFactor * pow(cloudFactor, 1.3));
+  cloudColor = mix(cloudColor, sunsetColor, sunsetFactor);
   cloudColor *= (cloudShadowFactor);
   vLambertLight = mix(vLambertLight, cloudColor, cloudFactor);
 
@@ -97,7 +97,7 @@ void main() {
   vLambertLight = mix(vLambertLight, athmosphereColor, fresnel * sunLight);
 
   gl_FragColor = vec4(vec3(vLambertLight), 1.0);
-  // gl_FragColor = vec4(vec3(cloudNoiseFactor), 1.0);
+  // gl_FragColor = vec4(vec3(sunsetFactor + ), 1.0);
 }
 `;
 
