@@ -1,7 +1,8 @@
 import { WebGLRenderer, PerspectiveCamera, Scene } from 'three';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { guiData, handleSunRotationChange, sunRotationGui } from './gui';
+import { guiData, sunRotationGui } from './gui';
+import { addSky } from './materials/sky';
 import { Earth } from './objects/earth';
 
 // scene
@@ -14,10 +15,11 @@ const renderer = new WebGLRenderer({antialias: true});
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor(0x000000, 1);
 renderer.shadowMap.enabled = true;
+addSky(renderer, scene);
 
 // camera
-const camera = new PerspectiveCamera(1);
-const distance = 50;
+const camera = new PerspectiveCamera(30);
+const distance = 2;
 camera.position.set(distance * 5, distance * 0.5, distance * 3);
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.update();
