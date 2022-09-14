@@ -1,11 +1,18 @@
 export const getSceneHit = `
 RayHit getSceneHit(vec3 p) {
   RayHit FloorObject = FloorSurface(p);
-  vec3 pBall = Translate(p, vec3(0.0, 0.0, -15.0));
-  // pBall = Translate(pBall, vec3(.0, sin(uTime / 10.0), .0));
+  vec3 pCenter = Translate(p, vec3(0.0, 0.0, -15.0));
   RayHit CenterObject = HouseSurface(
-    pBall
+    pCenter
   );
-  return Union(CenterObject, FloorObject);
+  vec3 pBall = Translate(pCenter, vec3(
+    .0,
+    sin(uTime / 10.0) * 0.3 + 1.0,
+    .0
+  ));
+  RayHit BallObject = BallSurface(pBall);
+  RayHit SceneObject = Union(FloorObject, CenterObject);
+  SceneObject = Union(SceneObject, BallObject);
+  return SceneObject;
 }
 `;

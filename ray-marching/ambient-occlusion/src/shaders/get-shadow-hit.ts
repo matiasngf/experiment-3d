@@ -1,6 +1,6 @@
 export const getShadowHit = `
 float getShadowHit(vec3 origin, vec3 normal, RayConfig rayConfig) {
-  return 1.0;
+  // return 1.0;
   if(dot(lightDirection, normal) < 0.5) {
     return 1.0;
   }
