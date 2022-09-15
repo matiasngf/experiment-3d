@@ -22,22 +22,19 @@ float getAmbientOcclusion(vec3 p, vec3 normal) {
   float distToSurface = cos(sampleAngle);
 
   float aoM = float(AO_SAMPLES);
-  
-  vec3 sampleVectors[AO_SAMPLES];
 
-  // float aoM = getSceneHit(p + normal / 3.0).dist * 3.0;
-  // aoM = pow(aoM, 0.2);
+  float vecDistance = 0.5;
 
   for (int i = 0; i < AO_SAMPLES; i++) {
     float angle = float(i) * (PI * 2.0 / float(AO_SAMPLES));
     vec3 sampleVector = normalize(rotate(normal2, normal, angle));
-    vec3 samplePoint = p + sampleVector * 0.3;
+    vec3 samplePoint = p + sampleVector * vecDistance;
     float d = getSceneHit(samplePoint).dist;
-    d = valueRemap(d, 0.0, distToSurface * 0.3, 0.3, 1.0);
+    d = valueRemap(d, 0.0, distToSurface * vecDistance, 0.3, 1.0);
     d = clamp(d, 0.0, 1.0);
-    d = pow(d, 0.3);
+    d = pow(d, 0.5);
     float sampleFactor = 1.0 - d;
-    aoM -= sampleFactor;
+    aoM -= sampleFactor / 4.0;
     // aoM = min(aoM , clamp(d, 0.4, 1.0));
   }
   return aoM / float(AO_SAMPLES);
