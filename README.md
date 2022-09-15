@@ -32,3 +32,15 @@
 `/ray-marching/reflections`
 
 ![descarga (3)](https://user-images.githubusercontent.com/29680544/178414345-926d7a81-ce3d-4140-816b-4a65cc1c36ef.png)
+
+## Ray-marching ambient occlusion
+
+`/ray-marching/ambient-occlusion`
+
+![image](https://user-images.githubusercontent.com/29680544/190285040-0adef9e7-06a2-46cc-ae8e-b0db44d46f0a.png)
+
+## Ray-marching portals
+
+`/ray-marching/portals`
+
+![image](https://user-images.githubusercontent.com/29680544/190285236-5487c160-b7b0-47c1-b595-99853189c139.png)
