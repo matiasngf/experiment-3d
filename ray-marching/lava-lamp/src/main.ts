@@ -1,5 +1,5 @@
 import './style.css'
-import { WebGLRenderer, Scene, Vector2, Vector3, GridHelper, Quaternion, TextureLoader, RepeatWrapping, DirectionalLight, AmbientLight, PointLight } from 'three';
+import { WebGLRenderer, Scene, GridHelper, TextureLoader, RepeatWrapping, AmbientLight, PointLight } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { Player } from './objects';
@@ -43,15 +43,15 @@ scene.add(gridHelper);
 const backgroundTexture = new TextureLoader().load(backgroundMapUrl);
 backgroundTexture.wrapT = backgroundTexture.wrapS = RepeatWrapping;
 
-const getDeviceSize = () => {
-  const {innerWidth, innerHeight, devicePixelRatio} = window;
-  return {
-    width: innerWidth * devicePixelRatio,
-    height: innerHeight * devicePixelRatio
-  }
-}
+// const getDeviceSize = () => {
+//   const {innerWidth, innerHeight, devicePixelRatio} = window;
+//   return {
+//     width: innerWidth * devicePixelRatio,
+//     height: innerHeight * devicePixelRatio
+//   }
+// }
 
-const initDeviceSize = getDeviceSize();
+// const initDeviceSize = getDeviceSize();
 
 //composer
 const composer = new EffectComposer(renderer);
@@ -69,7 +69,6 @@ window.requestAnimationFrame(onAnimationFrameHandler);
 
 // resize
 const windowResizeHanlder = () => { 
-  const deviceSize = getDeviceSize();
   
   const { innerHeight, innerWidth } = window;
 

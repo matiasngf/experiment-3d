@@ -1,4 +1,4 @@
-import { Group, Mesh, MeshPhongMaterial, Scene, SubtractiveBlending } from 'three';
+import { Group, Mesh, MeshPhongMaterial } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { LavaMaterial } from './lava-shader';
 
