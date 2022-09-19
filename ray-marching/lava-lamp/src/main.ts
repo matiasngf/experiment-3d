@@ -57,22 +57,10 @@ const initDeviceSize = getDeviceSize();
 const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
-// const rayMarchingPass = new ShaderPass({
-//   ...RayMarchingShader,
-//   uniforms: {
-//     uTime: { value: 0 },
-//     hdriMap: { value: backgroundTexture },
-//     cPos: { value: camera.position.clone() },
-//     resolution: {value: new Vector2(initDeviceSize.width, initDeviceSize.height)},
-//     cameraQuaternion: {value: camera.quaternion.clone()},
-//     fov: {value: camera.fov}
-//   }
-// });
-// composer.addPass(rayMarchingPass);
 
 // render loop
-const onAnimationFrameHandler = (__timeStamp: number) => {
-
+const onAnimationFrameHandler = (timestamp: number) => {
+  lamp.onFrame(timestamp)
   player.onFrame();
   composer.render();
   window.requestAnimationFrame(onAnimationFrameHandler);

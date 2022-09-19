@@ -18,6 +18,9 @@ void main() {
 
 const LavaFragmentShader = `
 
+// UNIFORMS
+uniform float uTime;
+
 // RAYMARCHING STRUCTS
 struct Material {
   vec3 color;
@@ -96,20 +99,37 @@ RayHit BallSurface(vec3 p, float radius) {
 
 float MIX_FACTOR = 0.2;
 
+float getBounce(float fact) {
+  return (cos(uTime / fact) - 0.5) * 2.0;
+}
+
 // This function will return the closest point in the scene for any given point p
 RayHit getSceneHit(vec3 p) {
-  p = p + vec3(1.0, 0.0, 1.0) * cos(p.y * 5.0) * 0.05;
+
+  // Timings
+  float cT1 = getBounce(5003.0);
+  float cT2  = getBounce(9052.0);
+  float cT3  = getBounce(15062.0);
+
+  // Glboal deformation
+  p = p + vec3(1.0, 0.0, 1.0) * cos((p.y + uTime / 30000.0) * 30.0) * 0.007;
   p = p + vec3(1.0, 0.0, 1.0) * cos(p.y * 20.0) * 0.01;
   p = p + vec3(0.0, 0.0, 1.0) * cos(p.x * 20.0) * 0.03;
+
   RayHit Scene;
   p = Translate(p, vec3(-0.1, 1.0, 0.7));
-  RayHit BallObject_1 = BallSurface(p, 0.1);
-  RayHit BallObject_2 = BallSurface(Translate(p, vec3(.1,.2,.0)), 0.1);
+  RayHit BallObject_1 = BallSurface(Translate(p, vec3(cT1 / 60.0, cT2 / -5.0, 0.0)), 0.15);
+  RayHit BallObject_2 = BallSurface(Translate(p, vec3(.1,.2 + cT1 / 5.0,.0)), 0.15);
   Scene = SmoothMin(BallObject_1, BallObject_2, MIX_FACTOR);
-  RayHit BallObject_3 = BallSurface(Translate(p, vec3(.1,.5,.0)), 0.1);
+  
+  RayHit BallObject_3 = BallSurface(Translate(p, vec3(.1,.5,.0)), 0.12);
   Scene = SmoothMin(Scene, BallObject_3, MIX_FACTOR);
-  RayHit BallObject_4 = BallSurface(Translate(p, vec3(-.2,-.23,.0)), 0.15);
+  
+  RayHit BallObject_4 = BallSurface(Translate(p, vec3(-.2,-.23 + cT2 / 20.0,.0)), 0.17);
   Scene = SmoothMin(Scene, BallObject_4, MIX_FACTOR);
+  
+  RayHit BaseBallObject = BallSurface(Translate(p, vec3(0.0, -0.75, 0.0)), 0.5);
+  Scene = SmoothMin(Scene, BaseBallObject, MIX_FACTOR);
   return Scene;
 }
 
@@ -167,10 +187,10 @@ LightResult getLight(vec3 p, vec3 rd, RayHit hit) {
 
 // Runs after main
 // This function will use castRay to get a point in the scene where the ray hits
-vec3 rayMarch() {
+vec4 rayMarch() {
   vec3 rayPosition = wPos;
   vec3 rayDirection = -viewDirection;
-  vec3 result = vec3(0.0);
+  vec4 result = vec4(0.2);
 
   RayResult hit = castRay(
     rayPosition,
@@ -182,7 +202,7 @@ vec3 rayMarch() {
 
   if(hit.hit) {
     LightResult light = getLight(hit.position, rayDirection, hit.rayHit);
-    result = light.color;
+    result = vec4(light.color, 1.0);
   }
 
   return result;
@@ -190,14 +210,17 @@ vec3 rayMarch() {
 
 // RUNS FIRST
 void main() {
-  vec3 color = rayMarch();
-  gl_FragColor = vec4(color, 1.0);
+  vec4 color = rayMarch();
+  gl_FragColor = vec4(color.xyz, 1.0);
+  gl_FragColor.a = color.a;
 }
 `;
 
 export const LavaMaterial = new ShaderMaterial({
   uniforms: {
+    uTime: {value: 0}
   },
   vertexShader: LavaVertexShader,
-  fragmentShader: LavaFragmentShader
+  fragmentShader: LavaFragmentShader,
+  transparent: true,
 });

@@ -2,6 +2,8 @@ import { Group, Mesh, MeshPhongMaterial, Scene, SubtractiveBlending } from 'thre
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { LavaMaterial } from './lava-shader';
 
+type onFrameCallback = (time: number) => void;
+
 export class LavaLamp extends Group {
   constructor() {
     const loader = new GLTFLoader();
@@ -19,9 +21,22 @@ export class LavaLamp extends Group {
           const mesh = obj.children[0] as Mesh;
           mesh.material = LavaMaterial;
           this.add(obj);
+
+          this.addOnFrame((t) => {
+            LavaMaterial.uniforms.uTime.value = t;
+          })
           return;
         }
       })
     })
+  }
+
+  onFrameCallbacks: onFrameCallback[] = [];
+  addOnFrame = (callback: onFrameCallback) => {
+    this.onFrameCallbacks.push(callback);
+  }
+
+  onFrame = (time: number) => {
+    this.onFrameCallbacks.forEach((callback) => callback(time));
   }
 }
