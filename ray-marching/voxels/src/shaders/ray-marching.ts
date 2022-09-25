@@ -30,6 +30,7 @@ export const RayMarchingShader = {
 		uniform float fov;
 		uniform sampler2D hdriMap;
 		uniform float uTime;
+		float VOXEL_SIZE = 0.3; //TODO make uniform
 
 		varying vec2 vUv;
 		varying vec3 wPos;
@@ -45,7 +46,7 @@ export const RayMarchingShader = {
 		#define REFLECTION_MAX_DISTANCE 50.0
 
 		// Todo: make uniforms
-		const vec3 lightDirection = normalize(vec3(1.0, 1.0, 1.0));
+		const vec3 lightDirection = normalize(vec3(1.0, 2.0, 1.5));
 		const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
 		#define PI 3.14159265359

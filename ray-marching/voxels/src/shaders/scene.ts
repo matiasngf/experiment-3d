@@ -1,25 +1,29 @@
 export const getSceneHit = `
-float VOXEL_SIZE = 0.3;
-
 vec3 getClosestBoxel(vec3 p) {
   return round(p / VOXEL_SIZE) * VOXEL_SIZE;
 }
 
 RayHit getScene(vec3 p) {
-  vec3 pCenter = Translate(p, vec3(0.0, 0.3, -15.0));
-  vec3 pBall = Translate(pCenter, vec3(
+  vec3 pCenter = Translate(p, getClosestBoxel(vec3(0.0, 0.3, -15.0)));
+  vec3 pBall = Translate(pCenter, (vec3(
     .0,
-    sin(uTime / 10.0) * 5.0 + 1.0,
+    sin(uTime / 10.0) * 10.0,
     .0
-  ));
-  pBall = getClosestBoxel(pBall);
+  )));
+
+  RayHit FloorObject = FloorSurface(p);
 
   RayHit BallObject = BallSurface(pBall, 3.1);
-  return BallObject;
+  RayHit SceneObject = SmoothMin(
+    BallObject,
+    BallSurface(pCenter, 3.1),
+    7.0
+  );
+  return SceneObject;
 }
 
 float getSafeDist() {
-  float safeDist = length(vec3(VOXEL_SIZE / 3.0));
+  float safeDist = length(vec3(VOXEL_SIZE));
   return safeDist;
 }
 
@@ -37,10 +41,8 @@ float getChunkDist(vec3 p, vec3 chunkCenter) {
   for(int x = -1; x <= 1; x += 1) {
     for(int y = -1; y <= 1; y += 1) {
       for(int z = -1; z <= 1; z += 1) {
-        if(!(x == 0 && y == 0 && z == 0)) {
-          vec3 quadCenter = chunkCenter + vec3(float(x) * VOXEL_SIZE, float(y) * VOXEL_SIZE, float(z) * VOXEL_SIZE);
-          minDist = min(minDist, getQuadDist(p, quadCenter));
-        }
+        vec3 quadCenter = chunkCenter + vec3(float(x) * VOXEL_SIZE, float(y) * VOXEL_SIZE, float(z) * VOXEL_SIZE);
+        minDist = min(minDist, getQuadDist(p, quadCenter));
       }
     }
   }
@@ -49,13 +51,16 @@ float getChunkDist(vec3 p, vec3 chunkCenter) {
 
 RayHit getSceneHit(vec3 p) {
   RayHit Hit = getScene(p);
+  // return Hit;
+  RayHit SceneHit = Hit;
   float safeDist = getSafeDist();
-  if(Hit.dist <= safeDist) {
+  if(SceneHit.dist <= safeDist) {
     vec3 center = getClosestBoxel(p);
-    Hit.dist = getChunkDist(p, center);
+    SceneHit.dist = getChunkDist(p, center);
   } else {
-    Hit.dist = max(Hit.dist - safeDist, SURFACE_DIST);
+    SceneHit.dist = max((SceneHit.dist - safeDist), SURFACE_DIST);
   }
-  return Hit;
+  return SceneHit;
+  return Union(SceneHit, Hit);
 }
 `;

@@ -47,8 +47,8 @@ struct RayConfig {
 export const getNormal = `
 
 // Normal calculation function (using gradient):
-const vec3 GRADIENT_STEP = vec3(0.001, 0.0, 0.0);
 vec3 getNormal(in vec3 p) {
+  vec3 GRADIENT_STEP = vec3(0.005, 0.0, 0.0);
   float gradientX = getSceneHit(p + GRADIENT_STEP.xyy).dist - getSceneHit(p - GRADIENT_STEP.xyy).dist;
   float gradientY = getSceneHit(p + GRADIENT_STEP.yxy).dist - getSceneHit(p - GRADIENT_STEP.yxy).dist;
   float gradientZ = getSceneHit(p + GRADIENT_STEP.yyx).dist - getSceneHit(p - GRADIENT_STEP.yyx).dist;
@@ -81,7 +81,7 @@ LightResult getLight(vec3 p, vec3 rd, RayHit hit) {
   vec3 light = vLambertLight;
 
   return LightResult(
-    normal,
+    light,
     normal,
     hitMat.reflectivity
   );

@@ -16,7 +16,7 @@ vec3 getTangent(vec3 v) {
 
 // TODO: refactor
 float getAmbientOcclusion(vec3 p, vec3 normal) {
-  return 1.0;
+  // return 1.0;
   vec3 t = getTangent(normal);
 
   float sampleAngle = PI / 10.0;
