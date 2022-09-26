@@ -1,27 +1,4 @@
 export const getSceneHit = `
-vec3 getClosestVoxel(vec3 p) {
-  return round(p / VOXEL_SIZE) * VOXEL_SIZE;
-}
-
-RayHit getScene(vec3 p) {
-  vec3 pCenter = Translate(p, getClosestVoxel(vec3(0.0, 0.3, -15.0)));
-  vec3 pBall = Translate(pCenter, (vec3(
-    .0,
-    sin(uTime / 10.0) * 10.0,
-    .0
-  )));
-
-  RayHit FloorObject = FloorSurface(p);
-
-  RayHit BallObject = BallSurface(pBall, 3.1);
-  RayHit SceneObject = SmoothMin(
-    BallObject,
-    BallSurface(pCenter, 3.1),
-    7.0
-  );
-  return SceneObject;
-}
-
 float getSafeDist() {
   float safeDist = length(vec3(VOXEL_SIZE));
   return safeDist;
