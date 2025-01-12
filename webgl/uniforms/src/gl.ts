@@ -38,7 +38,7 @@ const basicFragmentShader = /*glsl*/ `#version 300 es
     return a - b;
   }
 
-  float sphere(vec2 p, float size) {asda
+  float sphere(vec2 p, float size) {
     float d = length(p);
     return step(d, size);
   }
