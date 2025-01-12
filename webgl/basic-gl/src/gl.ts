@@ -1,9 +1,18 @@
 // basic gl program
 
+const FLOAT_SIZE = 4;
+
 const basicVertexShader = /*glsl*/ `#version 300 es
+  precision highp float;
+
   layout(location = 0) in vec3 position;
+  layout(location = 1) in vec2 uv;
+
+
+  out vec2 vUv;
 
   void main() {
+    vUv = uv;
     gl_Position = vec4(position, 1.0);
   }
 `;
@@ -11,10 +20,12 @@ const basicVertexShader = /*glsl*/ `#version 300 es
 const basicFragmentShader = /*glsl*/ `#version 300 es
   precision highp float;
 
+  in vec2 vUv;
+  
   out vec4 fragColor;
-
+  
   void main() {
-    fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    fragColor = vec4(vUv, 0.0, 1.0);
   }
 `;
 
@@ -61,9 +72,16 @@ const createScreenVao = (gl: WebGL2RenderingContext) => {
   // Create plane vertices (two triangles forming a square)
   const vertices = new Float32Array([
     -1, -1, 0.0, // bottom left
+    0.0, 0.0, // bottom left uv
+
     1, -1, 0.0, // bottom right
+    1.0, 0.0, // bottom right uv
+
     -1, 1, 0.0, // top left
+    0.0, 1.0, // top left uv
+
     1, 1, 0.0, // top right
+    1.0, 1.0, // top right uv
   ])
 
   const indices = new Uint16Array([
@@ -88,7 +106,11 @@ const createScreenVao = (gl: WebGL2RenderingContext) => {
 
   // Setup vertex attributes
   gl.enableVertexAttribArray(0)
-  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0)
+  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 5 * FLOAT_SIZE, 0)
+
+  // setup uv attributes
+  gl.enableVertexAttribArray(1)
+  gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 5 * FLOAT_SIZE, 3 * FLOAT_SIZE)
 
   // Cleanup
   gl.bindVertexArray(null)
