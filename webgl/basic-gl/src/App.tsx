@@ -5,18 +5,16 @@ import { startGl } from "./gl";
 
 function observeResize(
   container: HTMLDivElement,
-  canvas: HTMLCanvasElement,
-  gl: WebGL2RenderingContext
+  callback: (width: number, height: number) => void
 ) {
   const resizeCallback = () => {
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    callback(container.clientWidth, container.clientHeight);
   };
 
   const resizeObserver = new ResizeObserver(resizeCallback);
   resizeObserver.observe(container);
 
+  // Call once to set initial size
   resizeCallback();
 
   return () => {
@@ -35,16 +33,18 @@ function App() {
     const container = containerRef.current;
     if (!container) return;
 
-    const gl2 = canvas.getContext("webgl2");
-    if (!gl2) return;
+    const gl = canvas.getContext("webgl2");
+    if (!gl) return;
 
-    const cleanupResize = observeResize(container, canvas, gl2);
+    const { stopGl, setSize } = startGl(gl);
 
-    const stopRender = startGl(gl2);
+    const cleanupResize = observeResize(container, (width, height) => {
+      setSize(width, height, window.devicePixelRatio || 1);
+    });
 
     return () => {
       cleanupResize();
-      stopRender();
+      stopGl();
     };
   }, []);
 

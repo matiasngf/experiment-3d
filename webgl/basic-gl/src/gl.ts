@@ -128,8 +128,29 @@ export function startGl(gl: WebGL2RenderingContext) {
 
   const renderAbortController = new AbortController();
 
+  let shouldUpdateSize: null | { width: number, height: number, pixelRatio: number } = null
+
+  const setSize = (width: number, height: number, pixelRatio: number = 1) => {
+    shouldUpdateSize = {
+      width,
+      height,
+      pixelRatio
+    }
+  }
+
   const renderLoop = () => {
     if (renderAbortController.signal.aborted) return;
+
+    if (shouldUpdateSize) {
+      gl.canvas.width = shouldUpdateSize.width * shouldUpdateSize.pixelRatio
+      gl.canvas.height = shouldUpdateSize.height * shouldUpdateSize.pixelRatio
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+      if ("style" in gl.canvas) {
+        gl.canvas.style.width = `${shouldUpdateSize.width}px`
+        gl.canvas.style.height = `${shouldUpdateSize.height}px`
+      }
+    }
 
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(program);
@@ -140,5 +161,10 @@ export function startGl(gl: WebGL2RenderingContext) {
 
   renderLoop();
 
-  return () => renderAbortController.abort()
+  const stopGl = () => renderAbortController.abort()
+
+  return {
+    stopGl,
+    setSize
+  }
 }
