@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // basic gl program
 
 const FLOAT_SIZE = 4;
@@ -8,11 +9,16 @@ const basicVertexShader = /*glsl*/ `#version 300 es
   layout(location = 0) in vec3 position;
   layout(location = 1) in vec2 uv;
 
-
   out vec2 vUv;
+  out vec2 vAspectUv;
+
+  uniform float uAspect;
+
 
   void main() {
     vUv = uv;
+    vAspectUv = uv;
+    vAspectUv.x = (vAspectUv.x - 0.5) * uAspect + 0.5;
     gl_Position = vec4(position, 1.0);
   }
 `;
@@ -21,13 +27,34 @@ const basicFragmentShader = /*glsl*/ `#version 300 es
   precision highp float;
 
   in vec2 vUv;
+  in vec2 vAspectUv;
   
   out vec4 fragColor;
 
   uniform vec3 uColor;
+  uniform float uAspect;
+  uniform float uSize;
+  vec2 translate(vec2 a, vec2 b) {
+    return a - b;
+  }
+
+  float sphere(vec2 p, float size) {
+    float d = length(p);
+    return step(d, size);
+  }
   
   void main() {
-    fragColor = vec4(uColor, 1.0);
+
+    vec2 p = vAspectUv;
+    p = translate(p, vec2(0.5, 0.5));
+
+    vec3 color = vec3(0.);
+
+    float sphereFact = sphere(p, uSize);
+
+    color = mix(color, uColor, sphereFact);
+
+    fragColor = vec4(color, 1.);
   }
 `;
 
@@ -40,14 +67,32 @@ function createShader(gl: WebGL2RenderingContext, type: number, source: string):
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     const info = gl.getShaderInfoLog(shader)
+    if (typeof info === 'string') {
+      const parsedErrorLine = info.match(/ERROR: 0:(\d+):/)
+      if (parsedErrorLine) {
+        const line = Number(parsedErrorLine[1])
+        const linesSource = source.split('\n')
+        // insert ^ at the line
+        linesSource.splice(line + 1, 0, '^'.repeat(linesSource[line].length))
+        console.error(linesSource.join('\n'))
+      }
+    }
     throw new Error(`Shader compilation failed: ${info}`)
+
   }
 
   return shader
 }
 
 interface ProgramUniforms {
-  color: [number, number, number],
+  [param: string]: unknown,
+}
+
+interface UniformLocationData {
+  name: string
+  type: number
+  location: WebGLUniformLocation
+  size: number
 }
 
 const createGlProgram = (gl: WebGL2RenderingContext, vertexShaderSource: string, fragmentShaderSource: string) => {
@@ -70,12 +115,57 @@ const createGlProgram = (gl: WebGL2RenderingContext, vertexShaderSource: string,
   gl.deleteShader(vertexShader);
   gl.deleteShader(fragmentShader);
 
+  // Parse uniform locations
+  const unifromLocations = new Map<string, UniformLocationData>()
+  const uniformsCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+
+  for (let uniformIndex = 0; uniformIndex < uniformsCount; uniformIndex++) {
+    const uniform = gl.getActiveUniform(program, uniformIndex)
+    if (!uniform) throw new Error("Failed to retrieve uniform at " + uniformIndex.toString())
+
+    const location = gl.getUniformLocation(program, uniform.name)
+    if (!location) throw new Error("Failed to retrieve uniform location from " + uniform.name)
+    unifromLocations.set(uniform.name, {
+      name: uniform.name,
+      location,
+      type: uniform.type,
+      size: uniform.size
+    })
+  }
+
+  console.log(uniformsCount);
+
+
+
   const uColor = gl.getUniformLocation(program, "uColor")
   if (!uColor) throw new Error("Could not find the uniform uColor");
 
-  const setUniforms = (newValues: Partial<ProgramUniforms>) => {
-    if (newValues.color) {
-      gl.uniform3f(uColor, newValues.color[0], newValues.color[1], newValues.color[2])
+  const setUniforms = (newValues: ProgramUniforms) => {
+
+    for (const [uniformName, uValue] of Object.entries(newValues)) {
+
+      const uniformData = unifromLocations.get(uniformName)
+      const uniformValue = uValue as any
+
+      if (!uniformData) {
+        // uniform is not in use
+        continue;
+      }
+
+      switch (uniformData.type) {
+        case 5126: // float
+          return uniformValue.length ?
+            gl.uniform1fv(uniformData.location, uniformValue) :
+            gl.uniform1f(uniformData.location, uniformValue);
+        case 35664: //float2
+          gl.uniform2fv(uniformData.location, uniformValue)
+          break;
+        case 35665: // float3
+          gl.uniform3fv(uniformData.location, uniformValue)
+          break;
+        default:
+          console.warn("Unhandled uniform type:", uniformData.type)
+      }
     }
   }
 
@@ -178,6 +268,7 @@ export function startGl(gl: WebGL2RenderingContext) {
     gl.useProgram(basicProgram);
     if (shouldUpdateUniforms) {
       setBasicProgramUniforms(shouldUpdateUniforms);
+      shouldUpdateUniforms = null
     }
     gl.bindVertexArray(planeVao);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);

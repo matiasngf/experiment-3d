@@ -1,8 +1,18 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { useEffect } from "react";
 import { startGl } from "./gl";
 import { useControls } from "leva";
+
+function hexToRgb(hex: string): [number, number, number] {
+  const bigint = parseInt(hex.replace("#", ""), 16);
+  return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+}
+
+function hexToVec3(hex: string): [number, number, number] {
+  const [r, g, b] = hexToRgb(hex);
+  return [r / 255, g / 255, b / 255];
+}
 
 function observeResize(
   container: HTMLDivElement,
@@ -40,12 +50,28 @@ function App() {
   const rendererRef = useRef<ReturnType<typeof startGl> | null>(null);
   rendererRef.current = renderer;
 
+  const defaultUniforms = useMemo(
+    () => ({
+      uColor: "#1ea0ce",
+      uSize: 0.2,
+    }),
+    []
+  );
+
   useControls({
-    colors: {
-      value: { r: 0, g: 0, b: 0 },
+    uColor: {
+      value: defaultUniforms.uColor,
       onChange: (value) => {
         rendererRef.current?.updateUniforms({
-          color: [value.r / 255, value.g / 255, value.b / 255],
+          uColor: hexToVec3(value),
+        });
+      },
+    },
+    uSize: {
+      value: defaultUniforms.uSize,
+      onChange: (value) => {
+        rendererRef.current?.updateUniforms({
+          uSize: value,
         });
       },
     },
@@ -65,15 +91,24 @@ function App() {
 
     const cleanupResize = observeResize(container, (width, height) => {
       renderer.setSize(width, height, window.devicePixelRatio || 1);
+      renderer.updateUniforms({
+        uAspect: width / height,
+      });
     });
 
     setElements({ canvas, container, renderer });
+
+    // set initial uniforms
+    renderer.updateUniforms({
+      uColor: hexToVec3(defaultUniforms.uColor),
+      uSize: defaultUniforms.uSize,
+    });
 
     return () => {
       cleanupResize();
       renderer.stopGl();
     };
-  }, []);
+  }, [defaultUniforms]);
 
   return (
     <>
