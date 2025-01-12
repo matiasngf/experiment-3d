@@ -38,7 +38,7 @@ const basicFragmentShader = /*glsl*/ `#version 300 es
     return a - b;
   }
 
-  float sphere(vec2 p, float size) {
+  float sphere(vec2 p, float size) {asda
     float d = length(p);
     return step(d, size);
   }
@@ -132,9 +132,6 @@ const createGlProgram = (gl: WebGL2RenderingContext, vertexShaderSource: string,
       size: uniform.size
     })
   }
-
-  console.log(uniformsCount);
-
 
 
   const uColor = gl.getUniformLocation(program, "uColor")
