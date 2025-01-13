@@ -18,8 +18,9 @@ vec2 translate(vec2 a, vec2 b) {
 }
 
 float sphere(vec2 p, float size) {
-  float d = length(p);
-  return step(d, size);
+  float sdf = length(p) - size;
+  float inside = clamp(-sdf / fwidth(sdf), 0.0, 1.0);
+  return inside;
 }
 
 void main() {
