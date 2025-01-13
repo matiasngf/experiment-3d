@@ -3,60 +3,8 @@
 
 const FLOAT_SIZE = 4;
 
-const basicVertexShader = /*glsl*/ `#version 300 es
-  precision highp float;
-
-  layout(location = 0) in vec3 position;
-  layout(location = 1) in vec2 uv;
-
-  out vec2 vUv;
-  out vec2 vAspectUv;
-
-  uniform float uAspect;
-
-
-  void main() {
-    vUv = uv;
-    vAspectUv = uv;
-    vAspectUv.x = (vAspectUv.x - 0.5) * uAspect + 0.5;
-    gl_Position = vec4(position, 1.0);
-  }
-`;
-
-const basicFragmentShader = /*glsl*/ `#version 300 es
-  precision highp float;
-
-  in vec2 vUv;
-  in vec2 vAspectUv;
-  
-  out vec4 fragColor;
-
-  uniform vec3 uColor;
-  uniform float uAspect;
-  uniform float uSize;
-  vec2 translate(vec2 a, vec2 b) {
-    return a - b;
-  }
-
-  float sphere(vec2 p, float size) {
-    float d = length(p);
-    return step(d, size);
-  }
-  
-  void main() {
-
-    vec2 p = vAspectUv;
-    p = translate(p, vec2(0.5, 0.5));
-
-    vec3 color = vec3(0.);
-
-    float sphereFact = sphere(p, uSize);
-
-    color = mix(color, uColor, sphereFact);
-
-    fragColor = vec4(color, 1.);
-  }
-`;
+import basicVertexShader from './basic.vert';
+import basicFragmentShader from './basic.frag';
 
 function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
   const shader = gl.createShader(type)
@@ -72,8 +20,11 @@ function createShader(gl: WebGL2RenderingContext, type: number, source: string):
       if (parsedErrorLine) {
         const line = Number(parsedErrorLine[1])
         const linesSource = source.split('\n')
-        // insert ^ at the line
-        linesSource.splice(line + 1, 0, '^'.repeat(linesSource[line].length))
+        if (linesSource.length < line) {
+          linesSource.splice(line + 1, 0, '^'.repeat(linesSource[line].length))
+        } else {
+          linesSource.push('^'.repeat(10))
+        }
         console.error(linesSource.join('\n'))
       }
     }
