@@ -8,6 +8,9 @@ overrides:
   '@radix-ui/react-portal': 1.0.2
 
 dependencies:
+  glsl-noise:
+    specifier: ^0.0.0
+    version: 0.0.0
   leva:
     specifier: ^0.9.35
     version: 0.9.35(@types/react-dom@18.3.5)(@types/react@18.3.18)(react-dom@18.3.1)(react@18.3.1)
@@ -2077,6 +2080,10 @@ packages:
       glsl-token-string: 1.0.1
       glsl-tokenizer: 2.1.5
     dev: true
+
+  /glsl-noise@0.0.0:
+    resolution: {integrity: sha512-b/ZCF6amfAUb7dJM/MxRs7AetQEahYzJ8PtgfrmEdtw6uyGOr+ZSGtgjFm6mfsBkxJ4d2W7kg+Nlqzqvn3Bc0w==}
+    dev: false
 
   /glsl-resolve@0.0.1:
     resolution: {integrity: sha512-xxFNsfnhZTK9NBhzJjSBGX6IOqYpvBHxxmo+4vapiljyGNCY0Bekzn0firQkQrazK59c1hYxMDxYS8MDlhw4gA==}

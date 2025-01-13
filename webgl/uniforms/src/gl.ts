@@ -197,7 +197,14 @@ export function startGl(gl: WebGL2RenderingContext) {
     }
   }
 
+  const startTime = performance.now()
+  let lastTime = startTime
+  let deltaTime = 0.000001
+
   const renderLoop = () => {
+    const currentTime = performance.now()
+    deltaTime = currentTime - lastTime
+    lastTime = currentTime
     if (renderAbortController.signal.aborted) return;
 
     if (shouldUpdateSize) {
@@ -214,6 +221,9 @@ export function startGl(gl: WebGL2RenderingContext) {
 
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(basicProgram);
+    setBasicProgramUniforms({
+      uTime: currentTime,
+    })
     if (shouldUpdateUniforms) {
       setBasicProgramUniforms(shouldUpdateUniforms);
       shouldUpdateUniforms = null
